@@ -43,7 +43,7 @@ interface OptimizedRateData {
  * @throws Error if data is invalid
  */
 function validateRateData(data: unknown): asserts data is OptimizedRateData {
-  if (!data || typeof data !== 'object' || data === null) {
+  if (!data || typeof data !== 'object') {
     throw new Error('Invalid rate data: not an object');
   }
 

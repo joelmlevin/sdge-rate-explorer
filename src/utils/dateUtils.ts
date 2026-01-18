@@ -4,7 +4,7 @@
  */
 
 import { parse, format, startOfDay, addDays } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
 
 // Pacific timezone identifier
 const PACIFIC_TZ = 'America/Los_Angeles';
@@ -14,21 +14,25 @@ const PACIFIC_TZ = 'America/Los_Angeles';
  * Pacific Standard Time is 8 hours behind UTC (UTC-8)
  * Pacific Daylight Time is 7 hours behind UTC (UTC-7)
  *
- * @param dateStr - Date string in "M/D/YYYY" format
- * @param timeStr - Time string in "H:MM:SS" format
- * @returns ISO 8601 timestamp in Pacific Time
+ * @param dateStr - Date string in "M/D/YYYY" format (UTC)
+ * @param timeStr - Time string in "H:MM:SS" format (UTC)
+ * @returns ISO 8601 timestamp representing the Pacific time moment
  */
 export function utcToPacific(dateStr: string, timeStr: string): string {
-  // Parse the date and time string
-  // Note: The CSV provides UTC times, and we parse them as-is
-  const dateTimeStr = `${dateStr} ${timeStr}`;
-  const parsedDate = parse(dateTimeStr, 'M/d/yyyy H:mm:ss', new Date());
+  // Parse the date and time components
+  const [month, day, year] = dateStr.split('/').map(Number);
+  const [hour, minute, second] = timeStr.split(':').map(Number);
   
-  // Convert to Pacific Time (handles DST automatically)
-  // toZonedTime interprets the input as if it's in the target timezone
-  const pacificDate = toZonedTime(parsedDate, PACIFIC_TZ);
-
-  return pacificDate.toISOString();
+  // Create a UTC date using Date.UTC (this is the correct UTC moment)
+  const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second);
+  const utcDate = new Date(utcTimestamp);
+  
+  // Format this UTC moment in Pacific timezone
+  // The formatInTimeZone function will handle DST automatically
+  const pacificStr = formatInTimeZone(utcDate, PACIFIC_TZ, "yyyy-MM-dd'T'HH:mm:ssXXX");
+  
+  // Convert back to ISO string (which represents the same moment in UTC)
+  return new Date(pacificStr).toISOString();
 }
 
 /**
