@@ -223,17 +223,23 @@ export function getAvailableRateNames(rates: RateEntry[]): string[] {
 
 /**
  * Get date range of available data
+ * Optimized with O(n) scan instead of O(n log n) sort
  */
 export function getDateRange(rates: RateEntry[]): { min: string; max: string } {
   if (rates.length === 0) {
     return { min: '', max: '' };
   }
 
-  const sorted = [...rates].sort((a, b) => a.date.localeCompare(b.date));
-  return {
-    min: sorted[0].date,
-    max: sorted[sorted.length - 1].date,
-  };
+  // Single pass through data to find min/max
+  let min = rates[0].date;
+  let max = rates[0].date;
+
+  for (const rate of rates) {
+    if (rate.date < min) min = rate.date;
+    if (rate.date > max) max = rate.date;
+  }
+
+  return { min, max };
 }
 
 /**
