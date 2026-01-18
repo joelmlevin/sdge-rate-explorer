@@ -5,7 +5,6 @@
  */
 
 import { useMemo, useRef, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import type { RateEntry } from '../../types';
 import { toCents } from '../../utils/rateUtils';
@@ -62,7 +61,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
   }, [rates, year]);
 
   // Calculate color scale (1st to 99th percentile for better high-end discrimination)
-  const { p1, p99, minRate, maxRate } = useMemo(() => {
+  const { p1, p99 } = useMemo(() => {
     // Get all aggregated hourly rates from dataGrid
     const allRates: number[] = [];
     dataGrid.forEach(hourMap => {
