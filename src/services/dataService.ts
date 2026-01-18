@@ -59,11 +59,31 @@ function validateRateData(data: unknown): asserts data is OptimizedRateData {
     throw new Error('Invalid rate data: missing or invalid data array');
   }
 
-  // Validate a sample of data entries
-  if (obj.data.length > 0) {
-    const sample = obj.data[0];
-    if (!Array.isArray(sample) || sample.length !== 6) {
-      throw new Error('Invalid rate data: data entries must be arrays of 6 elements');
+  // Validate a sample of data entries (length and element types)
+  const dataArray = obj.data as unknown[];
+  if (dataArray.length > 0) {
+    const maxSamples = Math.min(dataArray.length, 100);
+    for (let i = 0; i < maxSamples; i++) {
+      const entry = dataArray[i];
+      if (!Array.isArray(entry) || entry.length !== 6) {
+        throw new Error(
+          `Invalid rate data: data entries must be arrays of 6 elements (error at index ${i})`
+        );
+      }
+
+      const [date, hour, generation, delivery, total, dayType] = entry;
+      if (
+        typeof date !== 'string' ||
+        typeof hour !== 'number' ||
+        typeof generation !== 'number' ||
+        typeof delivery !== 'number' ||
+        typeof total !== 'number' ||
+        typeof dayType !== 'string'
+      ) {
+        throw new Error(
+          `Invalid rate data: incorrect element types in data entry at index ${i}`
+        );
+      }
     }
   }
 }
