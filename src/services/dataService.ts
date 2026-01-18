@@ -52,7 +52,8 @@ export async function loadRates(): Promise<RateEntry[]> {
   // Start loading
   cachePromise = (async () => {
     try {
-      const response = await fetch('/rates.json');
+      // Use relative path to work with GitHub Pages base path
+      const response = await fetch('./rates.json');
 
       if (!response.ok) {
         throw new Error(`Failed to load rates: ${response.status} ${response.statusText}`);
