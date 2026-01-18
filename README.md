@@ -7,12 +7,12 @@ A web application for exploring San Diego Gas & Electric (SDGE) solar buyback ra
 
 **🔗 Repository**: https://github.com/joelmlevin/sdge-rate-explorer
 
-**📅 Contract Years Supported**: 2023 (NBT23), 2024 (NBT24), 2026 (NBT00)
+**📅 Contract Years Supported**: 2023 (NBT23), 2024 (NBT24), 2025 (NBT00), 2026 (NBT00)
 
 ## Features
 
 ### Multi-Year Contract Support
-- **Contract Year Selector**: Choose your contract year (2023, 2024, or 2026)
+- **Contract Year Selector**: Choose your contract year (2023, 2024, 2025, or 2026)
 - **Year-Specific Rates**: Rates vary based on when you signed your SDGE Net Billing Tariff agreement
 - **Fast Switching**: Seamlessly switch between contract years with optimized caching
 - **Smart Loading**: Each year's data (~7 MB) loads on demand in ~200ms
@@ -75,6 +75,7 @@ npm run deploy
 ✅ **Optimized Data**: This application uses preprocessed JSON files for each contract year:
 - `rates-2023.json` (7.0 MB) - 2023 contract year (NBT23)
 - `rates-2024.json` (7.0 MB) - 2024 contract year (NBT24)
+- `rates-2025.json` (6.8 MB) - 2025 contract year (NBT00)
 - `rates-2026.json` (6.8 MB) - 2026 contract year (NBT00)
 
 The preprocessing reduces data size by 82% and load time from 5-10 seconds to ~200ms (50x faster).
@@ -109,7 +110,8 @@ Your rate structure depends on when you signed your SDGE Net Billing Tariff (NBT
 
 - **2023 (NBT23)**: For customers who signed their contract in 2023
 - **2024 (NBT24)**: For customers who signed their contract in 2024
-- **2026 (NBT00)**: For customers who signed their contract in 2026 (current default)
+- **2025 (NBT00)**: For customers who signed their contract in 2025 (current default)
+- **2026 (NBT00)**: For customers who signed their contract in 2026
 
 The contract year determines your rate schedule for the lifetime of your agreement. Use the dropdown selector in the app to choose your contract year.
 

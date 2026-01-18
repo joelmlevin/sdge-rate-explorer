@@ -28,6 +28,14 @@ node preprocess-rates.js \
   2024
 echo ""
 
+# Process 2025
+echo "Processing 2025 contract year..."
+node preprocess-rates.js \
+  "../../Current Year NBT Pricing Upload MIDAS.csv" \
+  "../public/rates-2025.json" \
+  2025
+echo ""
+
 # Process 2026
 echo "Processing 2026 contract year..."
 node preprocess-rates.js \
@@ -43,4 +51,5 @@ echo ""
 echo "Generated files:"
 echo "  - ../public/rates-2023.json"
 echo "  - ../public/rates-2024.json"
+echo "  - ../public/rates-2025.json"
 echo "  - ../public/rates-2026.json"

@@ -1,6 +1,6 @@
 # SDGE Rate Data Preprocessing
 
-This directory contains tools for converting SDGE rate data from the original 38 MB CSV format into optimized 6.8-7.0 MB JSON files for multiple contract years (2023, 2024, 2026).
+This directory contains tools for converting SDGE rate data from the original 38 MB CSV format into optimized 6.8-7.0 MB JSON files for multiple contract years (2023, 2024, 2025, 2026).
 
 ## Why Preprocessing?
 
@@ -45,6 +45,11 @@ node preprocess-rates.js \
   2024
 
 node preprocess-rates.js \
+  "../../Current Year NBT Pricing Upload MIDAS.csv" \
+  "../public/rates-2025.json" \
+  2025
+
+node preprocess-rates.js \
   "../../LY2026 NBT Pricing Upload MIDAS/Current Year NBT Pricing Upload MIDAS.csv" \
   "../public/rates-2026.json" \
   2026
@@ -53,6 +58,7 @@ node preprocess-rates.js \
 ### Output Files
 - `../public/rates-2023.json` (7.0 MB) - 2023 contract year
 - `../public/rates-2024.json` (7.0 MB) - 2024 contract year
+- `../public/rates-2025.json` (6.8 MB) - 2025 contract year
 - `../public/rates-2026.json` (6.8 MB) - 2026 contract year
 
 ## Optimization Techniques
@@ -136,13 +142,13 @@ USCA-XXDL-NB00-0000,NBT00,1/1/2025,8:00:00,...,0.053421,... (delivery)
 
 All contract years have identical schema but minor formatting differences:
 
-| Feature | LY2023 | LY2024 | LY2026 |
-|---------|--------|--------|--------|
-| BOM marker | ✓ | ✓ | ✗ |
-| Trailing commas | ✓ | ✓ | ✗ |
-| TimeEnd format | `:00` | `:00` | `:59` |
-| Unit capitalization | Export | Export | export |
-| RateName | NBT23 | NBT24 | NBT00 |
+| Feature | LY2023 | LY2024 | 2025 | LY2026 |
+|---------|--------|--------|------|--------|
+| BOM marker | ✓ | ✓ | ✗ | ✗ |
+| Trailing commas | ✓ | ✓ | ✗ | ✗ |
+| TimeEnd format | `:00` | `:00` | `:59` | `:59` |
+| Unit capitalization | Export | Export | export | export |
+| RateName | NBT23 | NBT24 | NBT00 | NBT00 |
 
 The preprocessing script handles all these variations automatically.
 

@@ -3,10 +3,10 @@
  * Defines available contract years and their metadata
  */
 
-export const AVAILABLE_CONTRACT_YEARS = [2023, 2024, 2026] as const;
+export const AVAILABLE_CONTRACT_YEARS = [2023, 2024, 2025, 2026] as const;
 export type ContractYear = typeof AVAILABLE_CONTRACT_YEARS[number];
 
-export const DEFAULT_CONTRACT_YEAR: ContractYear = 2026;
+export const DEFAULT_CONTRACT_YEAR: ContractYear = 2025;
 
 export interface ContractYearInfo {
   label: string;
@@ -24,6 +24,11 @@ export const CONTRACT_YEAR_INFO: Record<ContractYear, ContractYearInfo> = {
     label: '2024 (NBT24)',
     description: 'For customers who signed their contract in 2024',
     rateCode: 'NBT24'
+  },
+  2025: {
+    label: '2025 (NBT00)',
+    description: 'For customers who signed their contract in 2025',
+    rateCode: 'NBT00'
   },
   2026: {
     label: '2026 (NBT00)',

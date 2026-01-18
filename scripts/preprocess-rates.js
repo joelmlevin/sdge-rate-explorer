@@ -38,7 +38,7 @@ if (!inputPath || !outputPath || !contractYear) {
 }
 
 // Validate contract year
-const VALID_YEARS = [2023, 2024, 2026];
+const VALID_YEARS = [2023, 2024, 2025, 2026];
 if (!VALID_YEARS.includes(contractYear)) {
   console.error(`❌ Error: Invalid contract year: ${contractYear}`);
   console.error(`   Valid years: ${VALID_YEARS.join(', ')}`);
