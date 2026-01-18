@@ -1,6 +1,6 @@
 # SDGE Rate Data Preprocessing
 
-This directory contains tools for converting SDGE rate data from the original 38 MB CSV format into an optimized 6.8 MB JSON format suitable for web deployment.
+This directory contains tools for converting SDGE rate data from the original 38 MB CSV format into optimized 6.8-7.0 MB JSON files for multiple contract years (2023, 2024, 2025, 2026).
 
 ## Why Preprocessing?
 
@@ -20,24 +20,46 @@ The optimized JSON format is:
 
 ### Prerequisites
 - Node.js 18+ installed
-- Access to SDGE rate data CSV file
+- Access to SDGE rate data CSV files for contract years
 
 ### Generate Optimized Data
 
+**Process All Contract Years:**
 ```bash
-# Install dependencies
-npm install
-
-# Run preprocessing (uses default paths)
-npm run preprocess
-
-# Or specify custom paths
-node preprocess-rates.js /path/to/input.csv /path/to/output.json
+./preprocess-all-years.sh
 ```
 
-### Default Paths
-- **Input**: `../Current Year NBT Pricing Upload MIDAS.csv`
-- **Output**: `../webapp/public/rates.json`
+**Process Individual Contract Year:**
+```bash
+node preprocess-rates.js <input.csv> <output.json> <contractYear>
+
+# Examples:
+node preprocess-rates.js \
+  "../../LY2023 NBT Pricing Upload MIDAS/LY2023 NBT Pricing Upload MIDAS.csv" \
+  "../public/rates-2023.json" \
+  2023
+
+node preprocess-rates.js \
+  "../../LY2024 NBT Pricing Upload MIDAS/LY2024 NBT Pricing Upload MIDAS.csv" \
+  "../public/rates-2024.json" \
+  2024
+
+node preprocess-rates.js \
+  "../../Current Year NBT Pricing Upload MIDAS.csv" \
+  "../public/rates-2025.json" \
+  2025
+
+node preprocess-rates.js \
+  "../../LY2026 NBT Pricing Upload MIDAS/Current Year NBT Pricing Upload MIDAS.csv" \
+  "../public/rates-2026.json" \
+  2026
+```
+
+### Output Files
+- `../public/rates-2023.json` (7.0 MB) - 2023 contract year
+- `../public/rates-2024.json` (7.0 MB) - 2024 contract year
+- `../public/rates-2025.json` (6.8 MB) - 2025 contract year
+- `../public/rates-2026.json` (6.8 MB) - 2026 contract year
 
 ## Optimization Techniques
 
@@ -115,6 +137,20 @@ USCA-XXDL-NB00-0000,NBT00,1/1/2025,8:00:00,...,0.053421,... (delivery)
 | Rows/Entries | 350,640 | 175,300 | 50% fewer |
 | Parse Time | ~5-10 sec | ~200ms | 50x faster |
 | Memory Usage | ~200 MB | ~20 MB | 10x less |
+
+## Contract Year Variations
+
+All contract years have identical schema but minor formatting differences:
+
+| Feature | LY2023 | LY2024 | 2025 | LY2026 |
+|---------|--------|--------|------|--------|
+| BOM marker | ✓ | ✓ | ✗ | ✗ |
+| Trailing commas | ✓ | ✓ | ✗ | ✗ |
+| TimeEnd format | `:00` | `:00` | `:59` | `:59` |
+| Unit capitalization | Export | Export | export | export |
+| RateName | NBT23 | NBT24 | NBT00 | NBT00 |
+
+The preprocessing script handles all these variations automatically.
 
 ## When to Regenerate
 

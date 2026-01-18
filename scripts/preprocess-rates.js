@@ -3,14 +3,15 @@
  * SDGE Rate Data Preprocessor
  *
  * Converts the 38 MB SDGE CSV file into an optimized JSON format
- * Reduces file size by ~95% (38 MB → 1-2 MB)
+ * Reduces file size by ~82% (38 MB → 6.8 MB)
  *
  * Usage:
- *   node preprocess-rates.js [input.csv] [output.json]
+ *   node preprocess-rates.js <input.csv> <output.json> <contractYear>
  *
- * Default:
- *   Input: ../Current Year NBT Pricing Upload MIDAS.csv
- *   Output: ../webapp/public/rates.json
+ * Examples:
+ *   node preprocess-rates.js "../LY2023 NBT Pricing Upload MIDAS/LY2023 NBT Pricing Upload MIDAS.csv" "../webapp/public/rates-2023.json" 2023
+ *   node preprocess-rates.js "../LY2024 NBT Pricing Upload MIDAS/LY2024 NBT Pricing Upload MIDAS.csv" "../webapp/public/rates-2024.json" 2024
+ *   node preprocess-rates.js "../LY2026 NBT Pricing Upload MIDAS/Current Year NBT Pricing Upload MIDAS.csv" "../webapp/public/rates-2026.json" 2026
  */
 
 import fs from 'fs';
@@ -21,13 +22,34 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Parse command line arguments
-const inputPath = process.argv[2] || path.join(__dirname, '../Current Year NBT Pricing Upload MIDAS.csv');
-const outputPath = process.argv[3] || path.join(__dirname, '../webapp/public/rates.json');
+const inputPath = process.argv[2];
+const outputPath = process.argv[3];
+const contractYear = process.argv[4] ? parseInt(process.argv[4], 10) : null;
+
+// Validate arguments
+if (!inputPath || !outputPath || !contractYear) {
+  console.error('Usage: node preprocess-rates.js <input.csv> <output.json> <contractYear>');
+  console.error('');
+  console.error('Examples:');
+  console.error('  node preprocess-rates.js "../LY2023 NBT Pricing Upload MIDAS/LY2023 NBT Pricing Upload MIDAS.csv" "../webapp/public/rates-2023.json" 2023');
+  console.error('  node preprocess-rates.js "../LY2024 NBT Pricing Upload MIDAS/LY2024 NBT Pricing Upload MIDAS.csv" "../webapp/public/rates-2024.json" 2024');
+  console.error('  node preprocess-rates.js "../LY2026 NBT Pricing Upload MIDAS/Current Year NBT Pricing Upload MIDAS.csv" "../webapp/public/rates-2026.json" 2026');
+  process.exit(1);
+}
+
+// Validate contract year
+const VALID_YEARS = [2023, 2024, 2025, 2026];
+if (!VALID_YEARS.includes(contractYear)) {
+  console.error(`❌ Error: Invalid contract year: ${contractYear}`);
+  console.error(`   Valid years: ${VALID_YEARS.join(', ')}`);
+  process.exit(1);
+}
 
 console.log('SDGE Rate Data Preprocessor');
 console.log('===========================');
-console.log(`Input:  ${inputPath}`);
-console.log(`Output: ${outputPath}`);
+console.log(`Input:         ${inputPath}`);
+console.log(`Output:        ${outputPath}`);
+console.log(`Contract Year: ${contractYear}`);
 console.log('');
 
 // Check if input file exists
@@ -79,8 +101,14 @@ function parseHourFromValueName(valueName) {
 console.log('📖 Reading CSV file...');
 const startRead = Date.now();
 
-// Read CSV file
-const csvContent = fs.readFileSync(inputPath, 'utf-8');
+// Read CSV file and strip BOM if present
+let csvContent = fs.readFileSync(inputPath, 'utf-8');
+
+// Strip UTF-8 BOM (present in LY2023 and LY2024 files)
+if (csvContent.charCodeAt(0) === 0xFEFF) {
+  csvContent = csvContent.slice(1);
+  console.log('  Stripped UTF-8 BOM marker');
+}
 
 console.log(`✅ Read complete (${((Date.now() - startRead) / 1000).toFixed(2)}s)`);
 console.log('');
@@ -88,9 +116,11 @@ console.log('🔄 Parsing and processing...');
 const startProcess = Date.now();
 
 // Parse CSV
+// Note: LY2023/LY2024 have trailing commas on each line, which creates an empty 14th column
 const records = parse(csvContent, {
   columns: true,
   skip_empty_lines: true,
+  relax_column_count: true,  // Handle trailing commas gracefully
   cast: (value, context) => {
     // Convert numeric values
     if (context.column === 'Value' || context.column === 'DayStart' || context.column === 'DayEnd') {
@@ -193,10 +223,11 @@ const output = {
   meta: {
     generated: new Date().toISOString().split('T')[0],
     version: '2.0',
+    contractYear: contractYear,
     dateRange: [minDate, maxDate],
     totalHours: hourlyRates.length,
     totalDays: dates.length,
-    description: 'Optimized SDGE rate data - generated from MIDAS CSV',
+    description: `Optimized SDGE rate data for ${contractYear} contract year - generated from MIDAS CSV`,
     format: 'Array format: [date, hour, generation, delivery, total, dayType]',
     fields: ['date', 'hour', 'generation', 'delivery', 'total', 'dayType'],
     dayTypes: { 'w': 'weekday', 'e': 'weekend', 'h': 'holiday' }

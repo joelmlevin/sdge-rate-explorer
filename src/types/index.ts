@@ -9,7 +9,7 @@
  */
 export interface RawRateEntry {
   RIN: string;                    // Rate Identification Number (e.g., "USCA-XXSD-NB00-0000")
-  RateName: string;               // e.g., "NBT00", "NBT24"
+  RateName: string;               // e.g., "NBT23", "NBT24", "NBT25", "NBT26"
   DateStart: string;              // Date in "M/D/YYYY" format (UTC)
   TimeStart: string;              // Time in "H:MM:SS" format (UTC)
   DateEnd: string;                // Date in "M/D/YYYY" format (UTC)
@@ -33,7 +33,7 @@ export interface RateEntry {
   rate: number;                   // Total rate in $/kWh (generation + delivery)
   rateCents: number;              // Total rate in cents/kWh (for display)
   rateType: 'generation' | 'delivery';  // Parsed from RIN (kept for compatibility)
-  rateName: string;               // e.g., "NBT00", "NBT24"
+  rateName: string;               // e.g., "NBT23", "NBT24", "NBT25", "NBT26"
   dayType: 'weekday' | 'weekend' | 'holiday';  // Parsed from DayStart
   month: number;                  // 1-12
   monthName: string;              // "January", "February", etc.
@@ -131,7 +131,7 @@ export interface RateFilters {
   years?: number[];               // Array of years to include
   dayTypes?: ('weekday' | 'weekend' | 'holiday')[];
   rateTypes?: ('generation' | 'delivery')[];
-  rateNames?: string[];           // Array of rate names (e.g., ["NBT00", "NBT24"])
+  rateNames?: string[];           // Array of rate names (e.g., ["NBT23", "NBT24", "NBT25", "NBT26"])
 }
 
 /**

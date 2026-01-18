@@ -6,10 +6,11 @@
 import type { RateEntry, RateFilters } from '../types';
 import { getMonthName, getDayOfWeekName } from '../utils/dateUtils';
 import { toCents } from '../utils/rateUtils';
+import { AVAILABLE_CONTRACT_YEARS, DEFAULT_CONTRACT_YEAR, type ContractYear } from '../config/contractYears';
 
-// In-memory cache for processed data
-let cachedRates: RateEntry[] | null = null;
-let cachePromise: Promise<RateEntry[]> | null = null;
+// In-memory cache for processed data (per contract year)
+const cachedRates: Map<ContractYear, RateEntry[]> = new Map();
+const cachePromises: Map<ContractYear, Promise<RateEntry[]>> = new Map();
 
 // Type for the optimized JSON format
 interface OptimizedRateData {
@@ -35,42 +36,55 @@ interface OptimizedRateData {
 }
 
 /**
- * Load and parse the optimized JSON file
+ * Load and parse the optimized JSON file for a specific contract year
  * Uses caching to avoid re-parsing on subsequent calls
+ * @param contractYear The contract year to load (2023, 2024, 2025, or 2026)
  */
-export async function loadRates(): Promise<RateEntry[]> {
+export async function loadRates(contractYear: ContractYear = DEFAULT_CONTRACT_YEAR): Promise<RateEntry[]> {
+  // Validate contract year
+  if (!AVAILABLE_CONTRACT_YEARS.includes(contractYear)) {
+    throw new Error(`Invalid contract year: ${contractYear}. Available years: ${AVAILABLE_CONTRACT_YEARS.join(', ')}`);
+  }
+
   // Return cached data if available
-  if (cachedRates) {
-    return cachedRates;
+  const cached = cachedRates.get(contractYear);
+  if (cached) {
+    return cached;
   }
 
   // Return existing promise if already loading
-  if (cachePromise) {
-    return cachePromise;
+  const existingPromise = cachePromises.get(contractYear);
+  if (existingPromise) {
+    return existingPromise;
   }
 
   // Start loading
-  cachePromise = (async () => {
+  const loadPromise = (async () => {
     try {
       // Use import.meta.env.BASE_URL to get the correct base path for both dev and production
       const basePath = import.meta.env.BASE_URL || '/';
-      const response = await fetch(`${basePath}rates.json`);
+      const response = await fetch(`${basePath}rates-${contractYear}.json`);
 
       if (!response.ok) {
-        throw new Error(`Failed to load rates: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to load rates for ${contractYear}: ${response.status} ${response.statusText}`);
       }
 
       const json: OptimizedRateData = await response.json();
       const processed = processOptimizedData(json);
-      cachedRates = processed;
+
+      // Cache the processed data
+      cachedRates.set(contractYear, processed);
+
       return processed;
     } catch (error) {
-      cachePromise = null; // Reset on error
-      throw new Error(`Failed to load rates: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      // Reset promise on error so it can be retried
+      cachePromises.delete(contractYear);
+      throw new Error(`Failed to load rates for ${contractYear}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   })();
 
-  return cachePromise;
+  cachePromises.set(contractYear, loadPromise);
+  return loadPromise;
 }
 
 /**
@@ -224,8 +238,14 @@ export function getDateRange(rates: RateEntry[]): { min: string; max: string } {
 
 /**
  * Clear the cache (useful for testing or if data needs to be reloaded)
+ * @param contractYear Optional year to clear; if not provided, clears all years
  */
-export function clearCache(): void {
-  cachedRates = null;
-  cachePromise = null;
+export function clearCache(contractYear?: ContractYear): void {
+  if (contractYear) {
+    cachedRates.delete(contractYear);
+    cachePromises.delete(contractYear);
+  } else {
+    cachedRates.clear();
+    cachePromises.clear();
+  }
 }
