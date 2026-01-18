@@ -8,8 +8,7 @@ permissions:
   contents: write
 
 env:
-  IS_FORK: ${{ github.event.repository.fork }}
-  IS_SAME_REPO_PR: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+  IS_FORK_PR: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
 
 concurrency:
   group: preview-pages-${{ github.event.pull_request.number || github.ref_name }}
@@ -17,7 +16,7 @@ concurrency:
 
 jobs:
   build-deploy:
-    if: env.IS_FORK == 'false' && env.IS_SAME_REPO_PR == 'true'
+    if: env.IS_FORK_PR != 'true'
     runs-on: ubuntu-latest
     env:
       PREVIEW_DIR: previews/${{ github.event.pull_request.number || github.ref_name }}
