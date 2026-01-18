@@ -71,45 +71,66 @@ export default function DayViewV2({ rates, date, design = 'minimal', datePickerC
 
       {/* Bar chart */}
       <div className="p-8">
-        <div className="flex gap-2 items-end h-80">
-          {hourlyRates.map(({ hour, totalRate, generationRate, deliveryRate }) => {
-            const isBest = hour === bestExportHour;
-            const barHeight = ((totalRate - yMin) / range) * 100;
+        <div className="flex gap-4">
+          {/* Y-axis labels and ticks */}
+          <div className="flex flex-col justify-between" style={{ height: '320px', paddingBottom: '24px' }}>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium tabular-nums" style={{ color: designSystem.colors.text.secondary }}>
+                {toCents(yMax).toFixed(2)}¢
+              </span>
+              <div style={{ width: '8px', height: '1px', backgroundColor: designSystem.colors.border }}></div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium tabular-nums" style={{ color: designSystem.colors.text.secondary }}>
+                {toCents(yMin).toFixed(2)}¢
+              </span>
+              <div style={{ width: '8px', height: '1px', backgroundColor: designSystem.colors.border }}></div>
+            </div>
+          </div>
 
-            return (
-              <div key={hour} className="flex-1 flex flex-col items-center group">
-                {/* Bar */}
-                <div className="w-full flex items-end" style={{ height: '300px' }}>
-                  <div
-                    className={`w-full transition-all ${designSystem.borders.radius} relative`}
-                    style={{
-                      height: `${barHeight}%`,
-                      backgroundColor: isBest ? '#10B981' : designSystem.colors.accent,
-                      opacity: isBest ? 1 : 0.7,
-                    }}
-                  >
-                    {/* Hover tooltip - with white background for readability */}
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
-                      <div className="text-xs whitespace-nowrap shadow-2xl" style={{ backgroundColor: 'rgba(255, 255, 255, 0.75)', borderRadius: '12px', padding: '9px 13px' }}>
-                        <div className="font-bold mb-1.5 text-gray-900">{formatHour(hour)}</div>
-                        <div className="font-bold text-base text-gray-900">{toCents(totalRate).toFixed(2)}¢/kWh</div>
-                        <div className="text-[10px] text-gray-600 mt-2 pt-2 border-t border-gray-300 space-y-0.5">
-                          <div>Gen: {toCents(generationRate).toFixed(2)}¢</div>
-                          <div>Del: {toCents(deliveryRate).toFixed(2)}¢</div>
+          {/* Chart area */}
+          <div className="flex-1">
+            <div className="flex gap-2 items-end h-80">
+              {hourlyRates.map(({ hour, totalRate, generationRate, deliveryRate }) => {
+                const isBest = hour === bestExportHour;
+                const barHeight = ((totalRate - yMin) / range) * 100;
+
+                return (
+                  <div key={hour} className="flex-1 flex flex-col items-center group">
+                    {/* Bar */}
+                    <div className="w-full flex items-end" style={{ height: '300px' }}>
+                      <div
+                        className={`w-full transition-all ${designSystem.borders.radius} relative`}
+                        style={{
+                          height: `${barHeight}%`,
+                          backgroundColor: isBest ? '#10B981' : designSystem.colors.accent,
+                          opacity: isBest ? 1 : 0.7,
+                        }}
+                      >
+                        {/* Hover tooltip - with white background for readability */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                          <div className="text-xs whitespace-nowrap shadow-2xl" style={{ backgroundColor: 'rgba(255, 255, 255, 0.75)', borderRadius: '12px', padding: '9px 13px' }}>
+                            <div className="font-bold mb-1.5 text-gray-900">{formatHour(hour)}</div>
+                            <div className="font-bold text-base text-gray-900">{toCents(totalRate).toFixed(2)}¢/kWh</div>
+                            <div className="text-[10px] text-gray-600 mt-2 pt-2 border-t border-gray-300 space-y-0.5">
+                              <div>Gen: {toCents(generationRate).toFixed(2)}¢</div>
+                              <div>Del: {toCents(deliveryRate).toFixed(2)}¢</div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* Hour label */}
-                <div className="mt-2 text-[10px] font-medium tabular-nums"
-                     style={{ color: isBest ? '#10B981' : designSystem.colors.text.tertiary }}>
-                  {formatHourCompact(hour)}
-                </div>
-              </div>
-            );
-          })}
+                    {/* Hour label - increased from text-[10px] to text-sm */}
+                    <div className="mt-2 text-sm font-medium tabular-nums"
+                         style={{ color: isBest ? '#10B981' : designSystem.colors.text.tertiary }}>
+                      {formatHourCompact(hour)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
 
