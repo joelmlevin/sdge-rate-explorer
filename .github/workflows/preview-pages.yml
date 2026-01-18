@@ -23,7 +23,9 @@ jobs:
         with:
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
       - name: Set repo name
-        run: echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> "$GITHUB_ENV"
+        run: |
+          echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> "$GITHUB_ENV"
+          echo "PREVIEW_PATH=/${GITHUB_REPOSITORY##*/}/${PREVIEW_DIR}/" >> "$GITHUB_ENV"
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -34,7 +36,7 @@ jobs:
       - name: Build preview
         run: npm run build
         env:
-          VITE_BASE_PATH: /${{ env.REPO_NAME }}/${{ env.PREVIEW_DIR }}/
+          VITE_BASE_PATH: ${{ env.PREVIEW_PATH }}
       - name: Deploy preview
         uses: peaceiris/actions-gh-pages@v4
         with:
