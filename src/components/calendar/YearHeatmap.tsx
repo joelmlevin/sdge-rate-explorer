@@ -1,6 +1,7 @@
 /**
  * Year Heatmap - Hourly rate visualization across entire year
- * Shows a dense grid of hourly rates with color coding
+ * X-axis: Days of year (365 columns)
+ * Y-axis: Hours of day (24 rows)
  */
 
 import { useMemo } from 'react';
@@ -17,12 +18,18 @@ interface YearHeatmapProps {
 export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHeatmapProps) {
   const designSystem = designs[design];
 
-  // Filter rates for this year and organize by date and hour
-  const yearData = useMemo(() => {
+  // Organize data: Map<date, Map<hour, rate>>
+  const { dateArray, dataGrid } = useMemo(() => {
+    console.log('YearHeatmap: Processing rates for year', year);
+    console.log('Total rates:', rates.length);
+
+    // Filter rates for this year
     const filtered = rates.filter(r => {
-      const date = new Date(r.date);
-      return date.getFullYear() === year;
+      const rateDate = new Date(r.date + 'T00:00:00');
+      return rateDate.getFullYear() === year;
     });
+
+    console.log('Filtered rates for year:', filtered.length);
 
     // Group by date
     const byDate = new Map<string, Map<number, number>>();
@@ -33,15 +40,24 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
       byDate.get(r.date)!.set(r.hour, r.totalRate);
     });
 
-    // Convert to sorted array of dates
+    // Get sorted array of dates
     const dates = Array.from(byDate.keys()).sort();
-    return { dates, byDate };
+    console.log('Unique dates:', dates.length);
+    console.log('First date:', dates[0], 'Last date:', dates[dates.length - 1]);
+
+    return {
+      dateArray: dates,
+      dataGrid: byDate
+    };
   }, [rates, year]);
 
   // Calculate color scale (95th percentile winsorization)
   const { minRate, maxRate, p95 } = useMemo(() => {
     const allRates = rates
-      .filter(r => new Date(r.date).getFullYear() === year)
+      .filter(r => {
+        const rateDate = new Date(r.date + 'T00:00:00');
+        return rateDate.getFullYear() === year;
+      })
       .map(r => r.totalRate)
       .sort((a, b) => a - b);
 
@@ -57,28 +73,28 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
     };
   }, [rates, year]);
 
-  // Color scale function (winsorized at 95th percentile)
-  const getColor = (rate: number): string => {
+  // Color scale function
+  const getColor = (rate: number | undefined): string => {
+    if (rate === undefined) return '#e5e7eb'; // Gray for missing data
+
     const clampedRate = Math.min(rate, p95);
-    const normalized = (clampedRate - minRate) / (p95 - minRate);
+    const normalized = Math.max(0, Math.min(1, (clampedRate - minRate) / (p95 - minRate)));
 
     // Purple (low) -> Teal (medium) -> Yellow (high)
     if (normalized < 0.5) {
-      // Purple to Teal
       const t = normalized * 2;
       return interpolateColor('#8B5CF6', '#14B8A6', t);
     } else {
-      // Teal to Yellow
       const t = (normalized - 0.5) * 2;
       return interpolateColor('#14B8A6', '#EAB308', t);
     }
   };
 
-  if (yearData.dates.length === 0) {
+  if (dateArray.length === 0) {
     return (
       <div className="p-8">
         <p style={{ color: designSystem.colors.text.tertiary }}>
-          No data available for heatmap
+          No data available for {year} heatmap
         </p>
       </div>
     );
@@ -86,7 +102,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
 
   return (
     <div className="p-8 space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-2xl font-bold" style={{ color: designSystem.colors.text.primary }}>
           Hourly Rate Heatmap
         </h3>
@@ -106,73 +122,81 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
         </div>
       </div>
 
-      {/* Heatmap grid */}
+      {/* Heatmap grid: X=days, Y=hours */}
       <div className="overflow-x-auto">
-        <div className="inline-block min-w-full">
-          {/* Hour labels */}
-          <div className="flex mb-1">
-            <div style={{ width: '60px' }} />
-            {Array.from({ length: 24 }, (_, hour) => (
-              <div
-                key={hour}
-                className="text-[9px] text-center"
-                style={{
-                  width: '12px',
-                  color: designSystem.colors.text.tertiary
-                }}
-              >
-                {hour % 6 === 0 ? hour : ''}
-              </div>
-            ))}
-          </div>
-
-          {/* Day rows */}
-          <div className="space-y-0.5">
-            {yearData.dates.map((date) => {
-              const dateObj = new Date(date);
-              const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
+        <div className="inline-block">
+          {/* Month labels at top */}
+          <div className="flex mb-1 ml-12">
+            {dateArray.map((date, idx) => {
+              const dateObj = new Date(date + 'T00:00:00');
               const day = dateObj.getDate();
-              const hourData = yearData.byDate.get(date)!;
 
-              // Show month label on first day of month
-              const showMonthLabel = day === 1;
-
-              return (
-                <div key={date} className="flex items-center">
+              // Show month name on first day of month
+              if (day === 1) {
+                const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
+                return (
                   <div
-                    className="text-[10px] pr-2 text-right"
+                    key={date}
+                    className="text-[9px] font-bold"
                     style={{
-                      width: '60px',
+                      width: '3px',
                       color: designSystem.colors.text.secondary,
-                      fontWeight: showMonthLabel ? 'bold' : 'normal'
+                      writingMode: 'vertical-rl',
+                      textOrientation: 'mixed'
                     }}
                   >
-                    {showMonthLabel ? month : ''} {day}
+                    {month}
                   </div>
-                  <div className="flex gap-[1px]">
-                    {Array.from({ length: 24 }, (_, hour) => {
-                      const rate = hourData.get(hour);
-                      const color = rate !== undefined ? getColor(rate) : designSystem.colors.borderLight;
-
-                      return (
-                        <div
-                          key={hour}
-                          className="cursor-pointer hover:opacity-80"
-                          style={{
-                            width: '12px',
-                            height: '12px',
-                            backgroundColor: color
-                          }}
-                          title={rate !== undefined ? `${toCents(rate).toFixed(2)}¢/kWh` : 'No data'}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-              );
+                );
+              }
+              return <div key={date} style={{ width: '3px' }} />;
             })}
           </div>
+
+          {/* Hour rows */}
+          {Array.from({ length: 24 }, (_, hour) => (
+            <div key={hour} className="flex items-center mb-[1px]">
+              {/* Hour label */}
+              <div
+                className="text-[10px] pr-2 text-right"
+                style={{
+                  width: '48px',
+                  color: designSystem.colors.text.secondary
+                }}
+              >
+                {hour}:00
+              </div>
+
+              {/* Day columns */}
+              <div className="flex gap-[1px]">
+                {dateArray.map((date) => {
+                  const hourData = dataGrid.get(date);
+                  const rate = hourData?.get(hour);
+                  const color = getColor(rate);
+
+                  return (
+                    <div
+                      key={date}
+                      className="cursor-pointer hover:ring-1 hover:ring-black"
+                      style={{
+                        width: '3px',
+                        height: '8px',
+                        backgroundColor: color
+                      }}
+                      title={rate !== undefined
+                        ? `${date} ${hour}:00 - ${toCents(rate).toFixed(2)}¢/kWh`
+                        : `${date} ${hour}:00 - No data`}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
+      </div>
+
+      <div className="text-xs" style={{ color: designSystem.colors.text.tertiary }}>
+        {dateArray.length} days × 24 hours = {dateArray.length * 24} data points
       </div>
     </div>
   );
