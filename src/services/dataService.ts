@@ -11,6 +11,9 @@ import { toCents } from '../utils/rateUtils';
 let cachedRates: RateEntry[] | null = null;
 let cachePromise: Promise<RateEntry[]> | null = null;
 
+// Get data URL from environment variable or use default
+const DATA_URL = import.meta.env.VITE_DATA_URL || '/rates.json';
+
 // Type for the optimized JSON format
 interface OptimizedRateData {
   meta: {
@@ -35,6 +38,37 @@ interface OptimizedRateData {
 }
 
 /**
+ * Validate the structure of loaded rate data
+ * @param data - The data to validate
+ * @throws Error if data is invalid
+ */
+function validateRateData(data: unknown): asserts data is OptimizedRateData {
+  if (!data || typeof data !== 'object') {
+    throw new Error('Invalid rate data: not an object');
+  }
+
+  const obj = data as Record<string, unknown>;
+
+  // Check for required meta field
+  if (!obj.meta || typeof obj.meta !== 'object') {
+    throw new Error('Invalid rate data: missing or invalid meta field');
+  }
+
+  // Check for required data field
+  if (!Array.isArray(obj.data)) {
+    throw new Error('Invalid rate data: missing or invalid data array');
+  }
+
+  // Validate a sample of data entries
+  if (obj.data.length > 0) {
+    const sample = obj.data[0];
+    if (!Array.isArray(sample) || sample.length !== 6) {
+      throw new Error('Invalid rate data: data entries must be arrays of 6 elements');
+    }
+  }
+}
+
+/**
  * Load and parse the optimized JSON file
  * Uses caching to avoid re-parsing on subsequent calls
  */
@@ -52,13 +86,17 @@ export async function loadRates(): Promise<RateEntry[]> {
   // Start loading
   cachePromise = (async () => {
     try {
-      const response = await fetch('/rates.json');
+      const response = await fetch(DATA_URL);
 
       if (!response.ok) {
         throw new Error(`Failed to load rates: ${response.status} ${response.statusText}`);
       }
 
-      const json: OptimizedRateData = await response.json();
+      const json = await response.json();
+      
+      // Validate data structure
+      validateRateData(json);
+      
       const processed = processOptimizedData(json);
       cachedRates = processed;
       return processed;

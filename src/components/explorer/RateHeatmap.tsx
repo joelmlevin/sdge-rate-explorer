@@ -35,7 +35,10 @@ export default function RateHeatmap({ rates, allRates }: RateHeatmapProps) {
       if (!ratesByDateAndHour.has(rate.date)) {
         ratesByDateAndHour.set(rate.date, new Map());
       }
-      ratesByDateAndHour.get(rate.date)!.set(rate.hour, rate.rate);
+      const hourMap = ratesByDateAndHour.get(rate.date);
+      if (hourMap) {
+        hourMap.set(rate.hour, rate.rate);
+      }
     });
 
     // Calculate percentile-based min/max from ALL data (not just filtered)

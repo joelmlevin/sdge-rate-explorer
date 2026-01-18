@@ -21,7 +21,10 @@ export default function RateHeatmapSimple({ rates }: RateHeatmapProps) {
       if (!ratesByDateAndHour.has(rate.date)) {
         ratesByDateAndHour.set(rate.date, new Map());
       }
-      ratesByDateAndHour.get(rate.date)!.set(rate.hour, rate.rate);
+      const hourMap = ratesByDateAndHour.get(rate.date);
+      if (hourMap) {
+        hourMap.set(rate.hour, rate.rate);
+      }
     });
 
     // Get min/max for color scaling (don't use spread with large arrays!)

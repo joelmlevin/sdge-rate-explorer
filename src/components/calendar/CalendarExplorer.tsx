@@ -102,7 +102,7 @@ export default function CalendarExplorer() {
         </div>
 
         {/* View mode selector */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" role="group" aria-label="View mode selector">
           <button
             onClick={() => setViewMode('day')}
             className={`px-4 py-2 rounded-md font-medium transition-colors ${
@@ -110,6 +110,8 @@ export default function CalendarExplorer() {
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
+            aria-label="Switch to day view"
+            aria-pressed={viewMode === 'day'}
           >
             Day
           </button>
@@ -120,6 +122,8 @@ export default function CalendarExplorer() {
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
+            aria-label="Switch to week view"
+            aria-pressed={viewMode === 'week'}
           >
             Week
           </button>
@@ -130,6 +134,8 @@ export default function CalendarExplorer() {
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
+            aria-label="Switch to month view"
+            aria-pressed={viewMode === 'month'}
           >
             Month
           </button>
@@ -140,6 +146,8 @@ export default function CalendarExplorer() {
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
+            aria-label="Switch to year view"
+            aria-pressed={viewMode === 'year'}
           >
             Year
           </button>
