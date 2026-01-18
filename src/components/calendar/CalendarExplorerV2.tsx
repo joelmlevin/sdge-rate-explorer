@@ -13,6 +13,7 @@ import ContractYearSelector from '../shared/ContractYearSelector';
 import { addMonths, subMonths, parse } from 'date-fns';
 import { designs, type DesignVariant } from '../../styles/designs';
 import type { ContractYear } from '../../config/contractYears';
+import { CONTRACT_YEAR_INFO } from '../../config/contractYears';
 
 type ViewMode = 'day' | 'week' | 'month' | 'year';
 
@@ -101,6 +102,25 @@ export default function CalendarExplorerV2() {
   };
 
   const handleYearChange = async (year: ContractYear) => {
+    // Calculate the year offset based on where the data actually starts
+    // This maintains the same relative position in the data
+    // e.g., Feb 2025 in NBT25 data → Feb 2026 in NBT26 data
+    const oldDataStartYear = CONTRACT_YEAR_INFO[contractYear].dataStartYear;
+    const newDataStartYear = CONTRACT_YEAR_INFO[year].dataStartYear;
+    const yearOffset = newDataStartYear - oldDataStartYear;
+
+    // Update selected dates to maintain relative position in the dataset
+    const newYear = selectedYear + yearOffset;
+    const newDate = new Date(
+      selectedDate.getFullYear() + yearOffset,
+      selectedDate.getMonth(),
+      selectedDate.getDate()
+    );
+
+    setSelectedYear(newYear);
+    setSelectedDate(newDate);
+
+    // Switch the contract year data
     await switchContractYear(year);
   };
 
