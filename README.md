@@ -5,7 +5,7 @@
 
 A web application for exploring San Diego Gas & Electric (SDGE) solar buyback rates. Designed specifically for solar + battery system owners to optimize when to charge batteries and export power to the grid.
 
-**🔗 Repository**: https://github.com/joelmlevin/sdge-rate-explorer
+**Web application link**: [https://github.com/joelmlevin/sdge-rate-explorer](https://joelmlevin.github.io/sdge-rate-explorer/)
 
 ## Features
 
