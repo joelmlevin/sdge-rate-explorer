@@ -111,13 +111,6 @@ export default function DayViewV2({ rates, date, design = 'minimal', datePickerC
             );
           })}
         </div>
-
-        {/* Y-axis labels */}
-        <div className="mt-6 flex justify-between text-xs font-medium"
-             style={{ color: designSystem.colors.text.secondary }}>
-          <div>{toCents(yMin).toFixed(2)}¢</div>
-          <div>{toCents(yMax).toFixed(2)}¢</div>
-        </div>
       </div>
 
       {/* Insights */}
