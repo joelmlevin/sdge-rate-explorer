@@ -20,12 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PREVIEW_DIR: previews/${{ github.event.pull_request.number || github.ref_name }}
-      REPO_NAME: ${{ github.event.repository.name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set repo name
+        run: echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> "$GITHUB_ENV"
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
