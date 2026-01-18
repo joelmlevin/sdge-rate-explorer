@@ -41,7 +41,7 @@ export default function DayViewV2({ rates, date, design = 'minimal', datePickerC
          style={{ backgroundColor: designSystem.colors.surface }}>
       {/* Header */}
       <div className="px-8 py-6 border-b" style={{ borderColor: designSystem.colors.border }}>
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-3 mb-3">
           <h2 className="text-3xl font-bold" style={{ color: designSystem.colors.text.primary }}>
             {format(date, 'EEEE, MMMM d, yyyy')}
           </h2>
@@ -115,8 +115,8 @@ export default function DayViewV2({ rates, date, design = 'minimal', datePickerC
         {/* Y-axis labels */}
         <div className="mt-6 flex justify-between text-xs font-medium"
              style={{ color: designSystem.colors.text.secondary }}>
-          <div>{toCents(yMin).toFixed(2)}¢/kWh</div>
-          <div>{toCents(yMax).toFixed(2)}¢/kWh</div>
+          <div>{toCents(yMin).toFixed(2)}¢</div>
+          <div>{toCents(yMax).toFixed(2)}¢</div>
         </div>
       </div>
 

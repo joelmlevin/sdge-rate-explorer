@@ -37,9 +37,11 @@ export default function YearViewV2({ rates, year, onMonthClick, design = 'minima
     <div className={`${designSystem.borders.radius} overflow-hidden shadow-sm`}
          style={{ backgroundColor: designSystem.colors.surface }}>
       {/* Header */}
-      <div className="px-8 py-6 border-b flex items-center justify-between" style={{ borderColor: designSystem.colors.border }}>
-        <h2 className="text-4xl font-bold" style={{ color: designSystem.colors.text.primary }}>{year}</h2>
-        {datePickerComponent}
+      <div className="px-8 py-6 border-b" style={{ borderColor: designSystem.colors.border }}>
+        <div className="flex items-center gap-3">
+          <h2 className="text-4xl font-bold" style={{ color: designSystem.colors.text.primary }}>{year}</h2>
+          {datePickerComponent}
+        </div>
       </div>
 
       {/* Month grid - fixed 4 columns × 3 rows */}

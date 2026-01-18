@@ -42,11 +42,13 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
     <div className={`${designSystem.borders.radius} overflow-hidden shadow-sm`}
          style={{ backgroundColor: designSystem.colors.surface }}>
       {/* Header */}
-      <div className="px-8 py-6 border-b flex items-center justify-between" style={{ borderColor: designSystem.colors.border }}>
-        <h2 className="text-3xl font-bold" style={{ color: designSystem.colors.text.primary }}>
-          Week of {format(weekStart, 'MMM d')} - {format(weekEnd, 'MMM d, yyyy')}
-        </h2>
-        {datePickerComponent}
+      <div className="px-8 py-6 border-b" style={{ borderColor: designSystem.colors.border }}>
+        <div className="flex items-center gap-3">
+          <h2 className="text-3xl font-bold" style={{ color: designSystem.colors.text.primary }}>
+            Week of {format(weekStart, 'MMM d')} - {format(weekEnd, 'MMM d, yyyy')}
+          </h2>
+          {datePickerComponent}
+        </div>
       </div>
 
       {/* Grid container - 8 columns (1 for time + 7 for days) */}

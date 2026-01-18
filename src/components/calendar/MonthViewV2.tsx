@@ -33,14 +33,16 @@ export default function MonthViewV2({ rates, year, month, onDayClick, design = '
     <div className={`${designSystem.borders.radius} overflow-hidden shadow-sm`}
          style={{ backgroundColor: designSystem.colors.surface }}>
       {/* Header */}
-      <div className="px-8 py-6 border-b flex items-center justify-between" style={{
+      <div className="px-8 py-6 border-b" style={{
         borderColor: designSystem.colors.border,
         backgroundColor: designSystem.colors.surface
       }}>
-        <h2 className={`text-3xl font-bold`} style={{ color: designSystem.colors.text.primary }}>
-          {format(new Date(year, month - 1), 'MMMM yyyy')}
-        </h2>
-        {datePickerComponent}
+        <div className="flex items-center gap-3">
+          <h2 className={`text-3xl font-bold`} style={{ color: designSystem.colors.text.primary }}>
+            {format(new Date(year, month - 1), 'MMMM yyyy')}
+          </h2>
+          {datePickerComponent}
+        </div>
       </div>
 
       {/* Calendar container */}
