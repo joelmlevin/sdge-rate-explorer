@@ -17,22 +17,22 @@ export interface ContractYearInfo {
 export const CONTRACT_YEAR_INFO: Record<ContractYear, ContractYearInfo> = {
   2023: {
     label: '2023 (NBT23)',
-    description: 'For customers who signed their contract in 2023',
+    description: 'For customers who submitted a solar application in 2023',
     rateCode: 'NBT23'
   },
   2024: {
     label: '2024 (NBT24)',
-    description: 'For customers who signed their contract in 2024',
+    description: 'For customers who submitted a solar application in 2024',
     rateCode: 'NBT24'
   },
   2025: {
-    label: '2025 (NBT00)',
-    description: 'For customers who signed their contract in 2025',
-    rateCode: 'NBT00'
+    label: '2025 (NBT25)',
+    description: 'For customers who submitted a solar application in 2025',
+    rateCode: 'NBT25'
   },
   2026: {
-    label: '2026 (NBT00)',
-    description: 'For customers who signed their contract in 2026',
-    rateCode: 'NBT00'
+    label: '2026 (NBT26)',
+    description: 'For customers who submitted a solar application in 2026',
+    rateCode: 'NBT26'
   }
 };

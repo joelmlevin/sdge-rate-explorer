@@ -33,17 +33,19 @@ export default function ContractYearSelector({
         onClick={() => !isLoading && setIsOpen(!isOpen)}
         disabled={isLoading}
         className={`
-          flex items-center gap-2 px-4 py-2 rounded-lg border-2
-          ${isLoading ? 'bg-gray-100 border-gray-300 cursor-not-allowed' : 'bg-white border-gray-300 hover:border-blue-500'}
-          transition-colors duration-200
+          flex items-center gap-3 px-5 py-3 rounded-xl border-2 shadow-sm
+          ${isLoading ? 'bg-gray-100 border-gray-300 cursor-not-allowed' : 'bg-white border-blue-400 hover:border-blue-600 hover:shadow-md'}
+          transition-all duration-200
         `}
       >
-        <span className="text-sm font-medium text-gray-700">
-          Contract Year:
-        </span>
-        <span className="text-sm font-bold text-gray-900">
-          {CONTRACT_YEAR_INFO[currentYear].label}
-        </span>
+        <div className="flex flex-col items-start">
+          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+            Contract Year
+          </span>
+          <span className="text-base font-bold text-gray-900">
+            {CONTRACT_YEAR_INFO[currentYear].label}
+          </span>
+        </div>
         {isLoading ? (
           <svg className="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -66,7 +68,7 @@ export default function ContractYearSelector({
           />
 
           {/* Menu */}
-          <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border-2 border-gray-200 z-20">
+          <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border-2 border-blue-200 z-20">
             <div className="py-2">
               {AVAILABLE_CONTRACT_YEARS.map((year) => {
                 const info = CONTRACT_YEAR_INFO[year];
@@ -106,7 +108,7 @@ export default function ContractYearSelector({
             {/* Helper text */}
             <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 rounded-b-lg">
               <p className="text-xs text-gray-600">
-                Your rate structure depends on when you signed your SDGE Net Billing Tariff agreement. Select the year you signed up.
+                Your rate structure depends on when you submitted your solar application to SDGE. Select the year you applied.
               </p>
             </div>
           </div>
