@@ -132,8 +132,8 @@ export default function QuickDatePicker({
 
           {/* Modal content */}
           <div
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl p-4 bg-white rounded-xl shadow-2xl border-2 border-gray-200"
-            style={{ zIndex: 1000000 }}
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-2xl bg-white rounded-xl shadow-2xl border-2 border-gray-200 p-8"
+            style={{ zIndex: 1000000, width: 'calc(100% - 2rem)', maxWidth: '42rem' }}
           >
             <h3 className="text-xl font-bold text-gray-900 mb-4">Select Date</h3>
 
