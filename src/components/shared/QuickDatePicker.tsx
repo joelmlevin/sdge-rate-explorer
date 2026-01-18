@@ -125,15 +125,23 @@ export default function QuickDatePicker({
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black bg-opacity-50"
-            style={{ zIndex: 999999 }}
+            className="fixed inset-0"
+            style={{
+              zIndex: 999999,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)'
+            }}
             onClick={() => setIsOpen(false)}
           />
 
           {/* Modal content */}
           <div
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-2xl bg-white rounded-xl shadow-2xl border-2 border-gray-200 p-8"
-            style={{ zIndex: 1000000, width: 'calc(100% - 2rem)', maxWidth: '42rem' }}
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-2xl rounded-xl shadow-2xl border-2 border-gray-200 p-8"
+            style={{
+              zIndex: 1000000,
+              width: 'calc(100% - 2rem)',
+              maxWidth: '42rem',
+              backgroundColor: '#ffffff'
+            }}
           >
             <h3 className="text-xl font-bold text-gray-900 mb-4">Select Date</h3>
 
