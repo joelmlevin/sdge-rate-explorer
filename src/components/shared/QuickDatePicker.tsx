@@ -3,8 +3,7 @@
  * Allows users to quickly navigate to any date within the available data range
  */
 
-import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import { useState } from 'react';
 import { format, isValid } from 'date-fns';
 
 interface QuickDatePickerProps {
@@ -110,12 +109,6 @@ export default function QuickDatePicker({
     }
   };
 
-  const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setModalRoot(document.getElementById('modal-root'));
-  }, []);
-
   return (
     <>
       {/* Trigger button */}
@@ -127,18 +120,21 @@ export default function QuickDatePicker({
         Change Date
       </button>
 
-      {/* Modal - rendered in portal */}
-      {isOpen && modalRoot && createPortal(
+      {/* Modal */}
+      {isOpen && (
         <>
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black bg-opacity-50"
-            style={{ zIndex: 9998 }}
+            style={{ zIndex: 999999 }}
             onClick={() => setIsOpen(false)}
           />
 
-          {/* Modal */}
-          <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
+          {/* Modal content */}
+          <div
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl p-4"
+            style={{ zIndex: 1000000 }}
+          >
             <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8 border-2 border-gray-200">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Select Date</h3>
 
@@ -229,8 +225,7 @@ export default function QuickDatePicker({
               </div>
             </div>
           </div>
-        </>,
-        modalRoot
+        </>
       )}
     </>
   );
