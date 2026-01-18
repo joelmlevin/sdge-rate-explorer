@@ -132,97 +132,95 @@ export default function QuickDatePicker({
 
           {/* Modal content */}
           <div
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl p-4"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl p-4 bg-white rounded-xl shadow-2xl border-2 border-gray-200"
             style={{ zIndex: 1000000 }}
           >
-            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8 border-2 border-gray-200">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Select Date</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Select Date</h3>
 
-              {/* Date selectors */}
-              <div className="space-y-4 mb-6">
-                {/* Year */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Year
-                  </label>
-                  <select
-                    value={selectedYear}
-                    onChange={(e) => handleYearChange(parseInt(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    {yearOptions.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Month */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Month
-                  </label>
-                  <select
-                    value={selectedMonth}
-                    onChange={(e) => handleMonthChange(parseInt(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    {monthOptions.map((month) => (
-                      <option key={month.value} value={month.value}>
-                        {month.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Day */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Day</label>
-                  <select
-                    value={selectedDay}
-                    onChange={(e) => setSelectedDay(parseInt(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    {dayOptions.map((day) => (
-                      <option key={day} value={day}>
-                        {day}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Error message */}
-              {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800">
-                  {error}
-                </div>
-              )}
-
-              {/* Preview */}
-              <div className="mb-6 p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">Selected date:</p>
-                <p className="text-lg font-semibold text-gray-900">
-                  {format(new Date(selectedYear, selectedMonth - 1, selectedDay), 'MMMM d, yyyy')}
-                </p>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+            {/* Date selectors */}
+            <div className="space-y-4 mb-6">
+              {/* Year */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Year
+                </label>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => handleYearChange(parseInt(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleApply}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                >
-                  Apply
-                </button>
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
               </div>
+
+              {/* Month */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Month
+                </label>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => handleMonthChange(parseInt(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {monthOptions.map((month) => (
+                    <option key={month.value} value={month.value}>
+                      {month.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Day */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Day</label>
+                <select
+                  value={selectedDay}
+                  onChange={(e) => setSelectedDay(parseInt(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {dayOptions.map((day) => (
+                    <option key={day} value={day}>
+                      {day}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Error message */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800">
+                {error}
+              </div>
+            )}
+
+            {/* Preview */}
+            <div className="mb-6 p-3 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600">Selected date:</p>
+              <p className="text-lg font-semibold text-gray-900">
+                {format(new Date(selectedYear, selectedMonth - 1, selectedDay), 'MMMM d, yyyy')}
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleApply}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
+                Apply
+              </button>
             </div>
           </div>
         </>
