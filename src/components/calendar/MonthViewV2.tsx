@@ -143,17 +143,6 @@ function DayCell({ daySummary, onClick, design }: DayCellProps) {
   const yMin = Math.min(...hourlyRates.map(h => h.totalRate));
   const range = yMax - yMin;
 
-  // Debug logging
-  if (showBarChart && dayNumber === 1) {
-    console.log('Day 1 bar chart:', {
-      yMax,
-      yMin,
-      range,
-      sampleRate: hourlyRates[0]?.totalRate,
-      sampleBarHeight: range > 0 ? ((hourlyRates[0]?.totalRate - yMin) / range) * 100 : 50
-    });
-  }
-
   const cellStyle: React.CSSProperties = {
     backgroundColor: isWeekend ? designSystem.colors.weekend.bg : designSystem.colors.surface,
     borderColor: designSystem.colors.borderLight,

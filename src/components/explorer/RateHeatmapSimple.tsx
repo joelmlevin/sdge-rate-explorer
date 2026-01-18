@@ -10,14 +10,6 @@ interface RateHeatmapProps {
 }
 
 export default function RateHeatmapSimple({ rates }: RateHeatmapProps) {
-  if (rates.length === 0) {
-    return (
-      <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-        <p className="text-gray-500">No data to display. Adjust filters to see rates.</p>
-      </div>
-    );
-  }
-
   const heatmapData = useMemo(() => {
     // Get unique dates (limited for performance)
     const uniqueDates = Array.from(new Set(rates.map(r => r.date))).sort().slice(0, 30);
@@ -44,6 +36,14 @@ export default function RateHeatmapSimple({ rates }: RateHeatmapProps) {
   }, [rates]);
 
   const { uniqueDates, ratesByDateAndHour, minRate, maxRate } = heatmapData;
+
+  if (rates.length === 0) {
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+        <p className="text-gray-500">No data to display. Adjust filters to see rates.</p>
+      </div>
+    );
+  }
 
   // Simple color function
   const getColor = (rate: number) => {

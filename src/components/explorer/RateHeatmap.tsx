@@ -75,10 +75,6 @@ export default function RateHeatmap({ rates, allRates }: RateHeatmapProps) {
 
   const { dates, ratesByDateAndHour, minRate, maxRate, weekStarts } = heatmapData;
 
-  // Calculate range for better color distribution
-  const rateRange = maxRate - minRate;
-  const rangePercent = (maxRate > 0) ? (rateRange / maxRate) * 100 : 0;
-
   // Get color using colorblind-safe scale with percentile-based normalization
   const getColor = (rate: number) => {
     // Handle edge case where all rates are the same
@@ -92,16 +88,6 @@ export default function RateHeatmap({ rates, allRates }: RateHeatmapProps) {
 
     return getColorForRate(normalized, 'viridis');
   };
-
-  // Debug: log the rate range
-  console.log('Rate range:', {
-    minRate: minRate.toFixed(4),
-    maxRate: maxRate.toFixed(4),
-    range: rateRange.toFixed(4),
-    rangePercent: rangePercent.toFixed(1) + '%',
-    rateCount: rates.length,
-    dateCount: dates.length
-  });
 
   // Format date as short label
   const formatDateShort = (dateStr: string) => {
