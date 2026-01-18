@@ -313,6 +313,14 @@ export default function CalendarExplorerV2() {
               rates={allRates}
               year={selectedYear}
               onMonthClick={handleMonthClick}
+              onDateClick={(date) => {
+                // Navigate to week view for this date
+                const clickedDate = new Date(date + 'T00:00:00');
+                setSelectedDate(clickedDate);
+                setSelectedMonth(clickedDate.getMonth() + 1);
+                setSelectedYear(clickedDate.getFullYear());
+                setViewMode('week');
+              }}
               design={design}
               datePickerComponent={
                 <QuickDatePicker

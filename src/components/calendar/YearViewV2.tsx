@@ -13,11 +13,12 @@ interface YearViewProps {
   rates: RateEntry[];
   year: number;
   onMonthClick?: (month: number) => void;
+  onDateClick?: (date: string) => void;
   design?: DesignVariant;
   datePickerComponent?: React.ReactNode;
 }
 
-export default function YearViewV2({ rates, year, onMonthClick, design = 'minimal', datePickerComponent }: YearViewProps) {
+export default function YearViewV2({ rates, year, onMonthClick, onDateClick, design = 'minimal', datePickerComponent }: YearViewProps) {
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const monthSummaries = months
     .map(month => getMonthSummary(rates, year, month))
@@ -59,7 +60,7 @@ export default function YearViewV2({ rates, year, onMonthClick, design = 'minima
 
       {/* Year Heatmap */}
       <div className="border-t" style={{ borderColor: designSystem.colors.border }}>
-        <YearHeatmap rates={rates} year={year} design={design} />
+        <YearHeatmap rates={rates} year={year} design={design} onDateClick={onDateClick} />
       </div>
     </div>
   );

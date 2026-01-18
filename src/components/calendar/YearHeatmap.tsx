@@ -4,7 +4,9 @@
  * Y-axis: Hours of day (24 rows)
  */
 
-import { useMemo } from 'react';
+import { useMemo, useRef, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 import type { RateEntry } from '../../types';
 import { toCents } from '../../utils/rateUtils';
 import { designs, type DesignVariant } from '../../styles/designs';
@@ -13,10 +15,15 @@ interface YearHeatmapProps {
   rates: RateEntry[];
   year: number;
   design?: DesignVariant;
+  onDateClick?: (date: string) => void;
 }
 
-export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHeatmapProps) {
+export default function YearHeatmap({ rates, year, design = 'minimal', onDateClick }: YearHeatmapProps) {
   const designSystem = designs[design];
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [cellWidth, setCellWidth] = useState(2);
+  const [hoveredCell, setHoveredCell] = useState<{ date: string; hour: number; rate: number } | null>(null);
+  const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // Organize data: Map<date, Map<hour, rate>>
   const { dateArray, dataGrid } = useMemo(() => {
@@ -54,8 +61,8 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
     };
   }, [rates, year]);
 
-  // Calculate color scale (95th percentile winsorization)
-  const { minRate, maxRate, p95 } = useMemo(() => {
+  // Calculate color scale (1st to 99th percentile for better high-end discrimination)
+  const { p1, p99, minRate, maxRate } = useMemo(() => {
     // Get all aggregated hourly rates from dataGrid
     const allRates: number[] = [];
     dataGrid.forEach(hourMap => {
@@ -67,14 +74,16 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
     allRates.sort((a, b) => a - b);
 
     if (allRates.length === 0) {
-      return { minRate: 0, maxRate: 0, p95: 0 };
+      return { p1: 0, p99: 0, minRate: 0, maxRate: 0 };
     }
 
-    const p95Index = Math.floor(allRates.length * 0.95);
+    const p1Index = Math.floor(allRates.length * 0.01);
+    const p99Index = Math.floor(allRates.length * 0.99);
     const result = {
+      p1: allRates[p1Index],
+      p99: allRates[p99Index],
       minRate: allRates[0],
-      maxRate: allRates[allRates.length - 1],
-      p95: allRates[p95Index]
+      maxRate: allRates[allRates.length - 1]
     };
 
     console.log('Color scale:', result);
@@ -83,12 +92,38 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
     return result;
   }, [dataGrid]);
 
-  // Color scale function
+  // Dynamic cell width calculation based on container width
+  useEffect(() => {
+    const updateCellWidth = () => {
+      if (containerRef.current && dateArray.length > 0) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const hourLabelWidth = 48;
+        const availableWidth = containerWidth - hourLabelWidth - 32; // 32px for padding
+        const calculatedWidth = Math.max(1, Math.floor(availableWidth / dateArray.length));
+        setCellWidth(Math.min(calculatedWidth, 4)); // Cap at 4px max for visual consistency
+      }
+    };
+
+    updateCellWidth();
+    window.addEventListener('resize', updateCellWidth);
+    return () => window.removeEventListener('resize', updateCellWidth);
+  }, [dateArray.length]);
+
+  // Color scale function with logarithmic mapping (1st to 99th percentile)
   const getColor = (rate: number | undefined): string => {
     if (rate === undefined) return '#e5e7eb'; // Gray for missing data
 
-    const clampedRate = Math.min(rate, p95);
-    const normalized = Math.max(0, Math.min(1, (clampedRate - minRate) / (p95 - minRate)));
+    // Clamp rate between p1 and p99
+    const clampedRate = Math.max(p1, Math.min(rate, p99));
+
+    // Apply logarithmic transformation for better discrimination across range
+    // Add small epsilon to avoid log(0)
+    const epsilon = 0.001;
+    const logMin = Math.log(p1 + epsilon);
+    const logMax = Math.log(p99 + epsilon);
+    const logRate = Math.log(clampedRate + epsilon);
+
+    const normalized = Math.max(0, Math.min(1, (logRate - logMin) / (logMax - logMin)));
 
     // Purple (low) -> Teal (medium) -> Yellow (high)
     if (normalized < 0.5) {
@@ -100,6 +135,36 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
     }
   };
 
+  // Generate legend color stops for display
+  const legendStops = useMemo(() => {
+    const stops = [];
+    const numStops = 8;
+
+    const epsilon = 0.001;
+    const logMin = Math.log(p1 + epsilon);
+    const logMax = Math.log(p99 + epsilon);
+
+    for (let i = 0; i <= numStops; i++) {
+      const normalized = i / numStops;
+      const logValue = logMin + normalized * (logMax - logMin);
+      const rate = Math.exp(logValue) - epsilon;
+
+      // Get color for this rate
+      let color: string;
+      if (normalized < 0.5) {
+        const t = normalized * 2;
+        color = interpolateColor('#8B5CF6', '#14B8A6', t);
+      } else {
+        const t = (normalized - 0.5) * 2;
+        color = interpolateColor('#14B8A6', '#EAB308', t);
+      }
+
+      stops.push({ rate, color, normalized });
+    }
+
+    return stops;
+  }, [p1, p99]);
+
   if (dateArray.length === 0) {
     return (
       <div className="p-8">
@@ -110,62 +175,57 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
     );
   }
 
+  // Calculate month positions for labels
+  const monthPositions = useMemo(() => {
+    const positions: Array<{ month: string; index: number }> = [];
+    dateArray.forEach((date, idx) => {
+      const dateObj = new Date(date + 'T00:00:00');
+      const day = dateObj.getDate();
+      if (day === 1 || (idx === 0 && positions.length === 0)) {
+        const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
+        positions.push({ month, index: idx });
+      }
+    });
+    return positions;
+  }, [dateArray]);
+
   return (
-    <div className="p-8 space-y-4">
+    <div className="p-8 space-y-4" ref={containerRef}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-2xl font-bold" style={{ color: designSystem.colors.text.primary }}>
           Hourly Rate Heatmap
         </h3>
-        <div className="flex items-center gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <span style={{ color: designSystem.colors.text.secondary }}>Low</span>
-            <div className="flex gap-0.5">
-              <div className="w-8 h-4 rounded-l" style={{ backgroundColor: '#8B5CF6' }} />
-              <div className="w-8 h-4" style={{ backgroundColor: '#14B8A6' }} />
-              <div className="w-8 h-4 rounded-r" style={{ backgroundColor: '#EAB308' }} />
-            </div>
-            <span style={{ color: designSystem.colors.text.secondary }}>High</span>
-          </div>
-          <div style={{ color: designSystem.colors.text.tertiary }}>
-            {toCents(minRate).toFixed(1)}¢ – {toCents(p95).toFixed(1)}¢
-          </div>
+        <div className="text-xs" style={{ color: designSystem.colors.text.tertiary }}>
+          {dateArray.length} days × 24 hours | Logarithmic color scale
         </div>
       </div>
 
-      {/* Heatmap grid: X=days, Y=hours */}
-      <div className="overflow-x-auto">
+      {/* Heatmap grid and legend container */}
+      <div className="flex gap-6">
+        {/* Heatmap grid: X=days, Y=hours */}
+        <div className="flex-1 overflow-x-auto">
         <div className="inline-block">
           {/* Month labels at top */}
-          <div className="flex mb-1 ml-12">
-            {dateArray.map((date, idx) => {
-              const dateObj = new Date(date + 'T00:00:00');
-              const day = dateObj.getDate();
-
-              // Show month name on first day of month
-              if (day === 1) {
-                const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
-                return (
-                  <div
-                    key={date}
-                    className="text-[9px] font-bold"
-                    style={{
-                      width: '3px',
-                      color: designSystem.colors.text.secondary,
-                      writingMode: 'vertical-rl',
-                      textOrientation: 'mixed'
-                    }}
-                  >
-                    {month}
-                  </div>
-                );
-              }
-              return <div key={date} style={{ width: '3px' }} />;
-            })}
+          <div className="relative mb-1" style={{ marginLeft: '48px', height: '16px' }}>
+            {monthPositions.map(({ month, index }) => (
+              <div
+                key={index}
+                className="absolute text-[9px] font-bold"
+                style={{
+                  left: `${index * cellWidth}px`,
+                  color: designSystem.colors.text.secondary,
+                  writingMode: 'vertical-rl',
+                  textOrientation: 'mixed'
+                }}
+              >
+                {month}
+              </div>
+            ))}
           </div>
 
           {/* Hour rows */}
           {Array.from({ length: 24 }, (_, hour) => (
-            <div key={hour} className="flex items-center mb-[1px]">
+            <div key={hour} className="flex items-center">
               {/* Hour label */}
               <div
                 className="text-[10px] pr-2 text-right"
@@ -178,7 +238,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
               </div>
 
               {/* Day columns */}
-              <div className="flex gap-[1px]">
+              <div className="flex">
                 {dateArray.map((date, idx) => {
                   const hourData = dataGrid.get(date);
                   const rate = hourData?.get(hour);
@@ -193,15 +253,25 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
                   return (
                     <div
                       key={date}
-                      className="cursor-pointer hover:ring-1 hover:ring-black"
+                      className="cursor-pointer hover:ring-2 hover:ring-black transition-all"
                       style={{
-                        width: '3px',
+                        width: `${cellWidth}px`,
                         height: '8px',
                         backgroundColor: color
                       }}
-                      title={rate !== undefined
-                        ? `${date} ${hour}:00 - ${toCents(rate).toFixed(2)}¢/kWh`
-                        : `${date} ${hour}:00 - No data`}
+                      onClick={() => onDateClick?.(date)}
+                      onMouseEnter={(e) => {
+                        if (rate !== undefined) {
+                          setHoveredCell({ date, hour, rate });
+                          setMousePosition({ x: e.clientX, y: e.clientY });
+                        }
+                      }}
+                      onMouseMove={(e) => {
+                        if (rate !== undefined) {
+                          setMousePosition({ x: e.clientX, y: e.clientY });
+                        }
+                      }}
+                      onMouseLeave={() => setHoveredCell(null)}
                     />
                   );
                 })}
@@ -209,11 +279,103 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
             </div>
           ))}
         </div>
+        </div>
+
+        {/* Vertical Legend */}
+        <div className="flex-shrink-0 flex items-center" style={{ width: '100px' }}>
+          <div className="flex flex-col" style={{ height: '200px', width: '100%' }}>
+            <div className="text-xs font-semibold mb-2" style={{ color: designSystem.colors.text.primary }}>
+              Rate (¢/kWh)
+            </div>
+
+            {/* Legend: gradient bar with rate labels */}
+            <div className="flex gap-3 flex-1">
+              {/* Continuous gradient bar showing color scale */}
+              <div className="relative rounded overflow-hidden" style={{ width: '20px', minHeight: '100%' }}>
+                {/* Render each color stop as a segment */}
+                {legendStops.map((stop, idx) => {
+                  if (idx === legendStops.length - 1) return null; // Skip last one
+                  const nextStop = legendStops[idx + 1];
+                  const height = (1 / (legendStops.length - 1)) * 100;
+
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        bottom: `${(idx / (legendStops.length - 1)) * 100}%`,
+                        height: `${height}%`,
+                        background: `linear-gradient(to top, ${stop.color}, ${nextStop.color})`
+                      }}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Rate labels positioned along the gradient */}
+              <div className="relative flex-1">
+                {legendStops.map((stop, idx) => {
+                  // Only show some labels to avoid crowding
+                  const showLabel = idx % 2 === 0 || idx === legendStops.length - 1;
+
+                  return showLabel ? (
+                    <div
+                      key={idx}
+                      className="absolute"
+                      style={{
+                        bottom: `${(idx / (legendStops.length - 1)) * 100}%`,
+                        transform: 'translateY(50%)',
+                        left: 0
+                      }}
+                    >
+                      <span
+                        className="text-[10px] whitespace-nowrap"
+                        style={{ color: designSystem.colors.text.secondary }}
+                      >
+                        {toCents(stop.rate).toFixed(1)}¢
+                      </span>
+                    </div>
+                  ) : null;
+                })}
+              </div>
+            </div>
+
+            <div className="text-[9px] mt-2 italic text-center" style={{ color: designSystem.colors.text.tertiary }}>
+              Log scale
+            </div>
+            <div className="text-[8px] mt-1 text-center" style={{ color: designSystem.colors.text.tertiary }}>
+              {toCents(p1).toFixed(1)}¢ – {toCents(p99).toFixed(1)}¢
+            </div>
+            <div className="text-[8px] mt-1 text-center" style={{ color: designSystem.colors.text.tertiary }}>
+              (1st–99th %ile)
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="text-xs" style={{ color: designSystem.colors.text.tertiary }}>
-        {dateArray.length} days × 24 hours = {dateArray.length * 24} data points
-      </div>
+      {/* Hover Tooltip */}
+      {hoveredCell && (
+        <div
+          className="fixed pointer-events-none z-50 px-3 py-2 rounded-lg shadow-xl"
+          style={{
+            left: `${mousePosition.x + 12}px`,
+            top: `${mousePosition.y - 40}px`,
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+          }}
+        >
+          <div className="text-xs font-semibold text-gray-700">
+            {format(new Date(hoveredCell.date + 'T00:00:00'), 'MMM d, yyyy')} at {hoveredCell.hour}:00
+          </div>
+          <div className="text-sm font-bold" style={{ color: '#14B8A6' }}>
+            {toCents(hoveredCell.rate).toFixed(2)}¢/kWh
+          </div>
+        </div>
+      )}
     </div>
   );
 }
