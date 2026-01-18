@@ -66,11 +66,16 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
     }
 
     const p95Index = Math.floor(allRates.length * 0.95);
-    return {
+    const result = {
       minRate: allRates[0],
       maxRate: allRates[allRates.length - 1],
       p95: allRates[p95Index]
     };
+
+    console.log('Color scale:', result);
+    console.log('Sample rates:', allRates.slice(0, 10));
+
+    return result;
   }, [rates, year]);
 
   // Color scale function
@@ -169,10 +174,16 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
 
               {/* Day columns */}
               <div className="flex gap-[1px]">
-                {dateArray.map((date) => {
+                {dateArray.map((date, idx) => {
                   const hourData = dataGrid.get(date);
                   const rate = hourData?.get(hour);
                   const color = getColor(rate);
+
+                  // Debug: Log first date's data for hour 12
+                  if (hour === 12 && idx === 0) {
+                    console.log('Sample cell - date:', date, 'hour:', hour, 'rate:', rate, 'color:', color);
+                    console.log('hourData for this date:', hourData);
+                  }
 
                   return (
                     <div
