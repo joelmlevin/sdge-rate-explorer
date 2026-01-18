@@ -10,6 +10,7 @@ import WeekViewV3 from './WeekViewV3';
 import DayViewV2 from './DayViewV2';
 import YearViewV2 from './YearViewV2';
 import ContractYearSelector from '../shared/ContractYearSelector';
+import QuickDatePicker from '../shared/QuickDatePicker';
 import { addMonths, endOfMonth, endOfWeek, endOfYear, format, parse, startOfMonth, startOfWeek, startOfYear, subMonths } from 'date-fns';
 import { designs, type DesignVariant } from '../../styles/designs';
 import type { ContractYear } from '../../config/contractYears';
@@ -144,6 +145,13 @@ export default function CalendarExplorerV2() {
     setSelectedMonth(suggestedDate.getMonth() + 1);
   };
 
+  const handleQuickDateChange = (date: Date) => {
+    setSelectedDate(date);
+    setSelectedYear(date.getFullYear());
+    setSelectedMonth(date.getMonth() + 1);
+    // Keep the same view mode - don't change it
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: designSystem.colors.background }}>
       <div className="max-w-[1600px] mx-auto px-6 py-8">
@@ -259,12 +267,46 @@ export default function CalendarExplorerV2() {
               month={selectedMonth}
               onDayClick={handleDayClick}
               design={design}
+              datePickerComponent={
+                <QuickDatePicker
+                  currentDate={selectedDate}
+                  availableRange={parsedRange}
+                  onDateChange={handleQuickDateChange}
+                />
+              }
             />
           )}
 
-          {viewMode === 'week' && <WeekViewV3 rates={allRates} date={selectedDate} design={design} onDayClick={handleWeekDayClick} />}
+          {viewMode === 'week' && (
+            <WeekViewV3
+              rates={allRates}
+              date={selectedDate}
+              design={design}
+              onDayClick={handleWeekDayClick}
+              datePickerComponent={
+                <QuickDatePicker
+                  currentDate={selectedDate}
+                  availableRange={parsedRange}
+                  onDateChange={handleQuickDateChange}
+                />
+              }
+            />
+          )}
 
-          {viewMode === 'day' && <DayViewV2 rates={allRates} date={selectedDate} design={design} />}
+          {viewMode === 'day' && (
+            <DayViewV2
+              rates={allRates}
+              date={selectedDate}
+              design={design}
+              datePickerComponent={
+                <QuickDatePicker
+                  currentDate={selectedDate}
+                  availableRange={parsedRange}
+                  onDateChange={handleQuickDateChange}
+                />
+              }
+            />
+          )}
 
           {viewMode === 'year' && (
             <YearViewV2
@@ -272,6 +314,13 @@ export default function CalendarExplorerV2() {
               year={selectedYear}
               onMonthClick={handleMonthClick}
               design={design}
+              datePickerComponent={
+                <QuickDatePicker
+                  currentDate={selectedDate}
+                  availableRange={parsedRange}
+                  onDateChange={handleQuickDateChange}
+                />
+              }
             />
           )}
         </div>

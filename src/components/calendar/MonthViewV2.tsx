@@ -15,9 +15,10 @@ interface MonthViewProps {
   month: number;
   onDayClick?: (date: string) => void;
   design?: DesignVariant;
+  datePickerComponent?: React.ReactNode;
 }
 
-export default function MonthViewV2({ rates, year, month, onDayClick, design = 'minimal' }: MonthViewProps) {
+export default function MonthViewV2({ rates, year, month, onDayClick, design = 'minimal', datePickerComponent }: MonthViewProps) {
   const calendarGrid = getMonthCalendarGrid(rates, year, month);
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const designSystem = designs[design];
@@ -32,13 +33,14 @@ export default function MonthViewV2({ rates, year, month, onDayClick, design = '
     <div className={`${designSystem.borders.radius} overflow-hidden shadow-sm`}
          style={{ backgroundColor: designSystem.colors.surface }}>
       {/* Header */}
-      <div className="px-8 py-6 border-b" style={{
+      <div className="px-8 py-6 border-b flex items-center justify-between" style={{
         borderColor: designSystem.colors.border,
         backgroundColor: designSystem.colors.surface
       }}>
         <h2 className={`text-3xl font-bold`} style={{ color: designSystem.colors.text.primary }}>
           {format(new Date(year, month - 1), 'MMMM yyyy')}
         </h2>
+        {datePickerComponent}
       </div>
 
       {/* Calendar container */}

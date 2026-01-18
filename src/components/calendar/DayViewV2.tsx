@@ -13,9 +13,10 @@ interface DayViewProps {
   rates: RateEntry[];
   date: Date;
   design?: DesignVariant;
+  datePickerComponent?: React.ReactNode;
 }
 
-export default function DayViewV2({ rates, date, design = 'minimal' }: DayViewProps) {
+export default function DayViewV2({ rates, date, design = 'minimal', datePickerComponent }: DayViewProps) {
   const daySummary = processDayRates(rates, date);
   const designSystem = designs[design];
 
@@ -40,9 +41,12 @@ export default function DayViewV2({ rates, date, design = 'minimal' }: DayViewPr
          style={{ backgroundColor: designSystem.colors.surface }}>
       {/* Header */}
       <div className="px-8 py-6 border-b" style={{ borderColor: designSystem.colors.border }}>
-        <h2 className="text-3xl font-bold mb-3" style={{ color: designSystem.colors.text.primary }}>
-          {format(date, 'EEEE, MMMM d, yyyy')}
-        </h2>
+        <div className="flex items-start justify-between mb-3">
+          <h2 className="text-3xl font-bold" style={{ color: designSystem.colors.text.primary }}>
+            {format(date, 'EEEE, MMMM d, yyyy')}
+          </h2>
+          {datePickerComponent}
+        </div>
         <div className="flex gap-8 text-sm">
           <div>
             <span style={{ color: designSystem.colors.text.secondary }}>Average: </span>
