@@ -7,19 +7,16 @@ A web application for exploring San Diego Gas & Electric (SDGE) solar buyback ra
 
 **🌐 Live App**: https://joelmlevin.github.io/sdge-rate-explorer/
 
-**📅 Contract Years Supported**: 2023 (NBT23), 2024 (NBT24), 2025 (NBT25), 2026 (NBT26)
-
 ## Features
 
 ### Multi-Year Contract Support
 - **Contract Year Selector**: Choose your contract year (2023, 2024, 2025, or 2026)
-- **Year-Specific Rates**: Rates vary based on when you signed your SDGE Net Billing Tariff agreement
 - **Fast Switching**: Seamlessly switch between contract years with optimized caching
 - **Smart Loading**: Each year's data (~7 MB) loads on demand in ~200ms
 
 ### Multiple View Modes
 - **Day View**: Detailed hour-by-hour analysis with bar charts
-- **Week View**: 7-day overview with daily summaries
+- **Week View**: 7-day overview with color-coded hourly pricing
 - **Month View**: Calendar grid with daily rate highlights
 - **Year View**: Full-year heatmap showing rate patterns
 
@@ -224,19 +221,10 @@ When adding features:
 3. Keep components focused on UI, logic in utilities
 4. Test on mobile viewport (this is primarily a mobile app)
 
-## License
-
-[Your License Here]
-
 ## Author
 
 Joel Levin
 Created: 2026-01-17
-
-## Acknowledgments
-
-- SDGE for providing export pricing data
-- California Public Utilities Commission (CPUC) for rate structure
 
 ## License
 
