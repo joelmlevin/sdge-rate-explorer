@@ -3,7 +3,7 @@
  * Allows users to quickly navigate to any date within the available data range
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { format, isValid } from 'date-fns';
 
@@ -110,7 +110,11 @@ export default function QuickDatePicker({
     }
   };
 
-  const modalRoot = document.getElementById('modal-root');
+  const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setModalRoot(document.getElementById('modal-root'));
+  }, []);
 
   return (
     <>
