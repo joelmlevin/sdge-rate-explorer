@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { format, parse, isValid } from 'date-fns';
+import { format, isValid } from 'date-fns';
 
 interface QuickDatePickerProps {
   currentDate: Date;
