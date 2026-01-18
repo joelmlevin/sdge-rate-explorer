@@ -39,7 +39,8 @@ jobs:
         env:
           VITE_BASE_PATH: ${{ env.PREVIEW_PATH }}
       - name: Deploy preview
-        uses: peaceiris/actions-gh-pages@v4
+        if: success()
+        uses: peaceiris/actions-gh-pages@v4.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
