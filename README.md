@@ -3,27 +3,36 @@
 [![GitHub](https://img.shields.io/badge/GitHub-joelmlevin%2Fsdge--rate--explorer-blue?logo=github)](https://github.com/joelmlevin/sdge-rate-explorer)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](#license)
 
-A web application for exploring San Diego Gas & Electric (SDGE) solar buyback rates. Designed specifically for solar + battery system owners to optimize when to charge batteries and export power to the grid.
+A web application for exploring San Diego Gas & Electric (SDGE) solar buyback rates across multiple contract years. Designed specifically for solar + battery system owners to optimize when to charge batteries and export power to the grid.
 
 **🔗 Repository**: https://github.com/joelmlevin/sdge-rate-explorer
 
+**📅 Contract Years Supported**: 2023 (NBT23), 2024 (NBT24), 2026 (NBT00)
+
 ## Features
 
-### Daily View
-- **7-Day Forecast**: See today's rates plus the next 6 days
-- **Visual Hourly Rates**: Color-coded bars showing relative rates throughout each day
-- **Battery Recommendations**: Smart suggestions for when to charge vs. discharge your battery
-- **Peak Rate Identification**: Quickly spot the best and worst times to export
+### Multi-Year Contract Support
+- **Contract Year Selector**: Choose your contract year (2023, 2024, or 2026)
+- **Year-Specific Rates**: Rates vary based on when you signed your SDGE Net Billing Tariff agreement
+- **Fast Switching**: Seamlessly switch between contract years with optimized caching
+- **Smart Loading**: Each year's data (~7 MB) loads on demand in ~200ms
 
-### Rate Visualization
-- Green bars = High export rates (top 25% for that day)
-- Red bars = Low export rates (bottom 25% for that day)
-- Hover over any hour to see exact rate in cents/kWh
+### Multiple View Modes
+- **Day View**: Detailed hour-by-hour analysis with bar charts
+- **Week View**: 7-day overview with daily summaries
+- **Month View**: Calendar grid with daily rate highlights
+- **Year View**: Full-year heatmap showing rate patterns
 
-### Battery Strategy
+### Visual Rate Analysis
+- Color-coded rates showing relative costs throughout each period
+- Hover tooltips with detailed breakdowns
+- Identification of best export hours (highest rates)
+- Responsive design for desktop and mobile
+
+### Battery Strategy (Coming Soon)
 - Automatic identification of optimal discharge windows (high rates)
 - Suggestions for charging from solar instead of exporting (low rates)
-- Context-aware recommendations based on each day's rate distribution
+- Context-aware recommendations based on rate patterns
 
 ## Technology Stack
 
@@ -63,9 +72,14 @@ npm run preview
 npm run deploy
 ```
 
-✅ **Optimized Data**: This application uses a preprocessed `rates.json` file (6.8 MB) that is included in the repository. The preprocessing reduces data size by 82% and load time from 5-10 seconds to ~200ms (50x faster).
+✅ **Optimized Data**: This application uses preprocessed JSON files for each contract year:
+- `rates-2023.json` (7.0 MB) - 2023 contract year (NBT23)
+- `rates-2024.json` (7.0 MB) - 2024 contract year (NBT24)
+- `rates-2026.json` (6.8 MB) - 2026 contract year (NBT00)
 
-**Note**: If you need to update the rate data, see `/scripts/README.md` for instructions on preprocessing the original SDGE CSV file.
+The preprocessing reduces data size by 82% and load time from 5-10 seconds to ~200ms (50x faster).
+
+**Note**: If you need to update the rate data or add new contract years, see `/scripts/README.md` for instructions on preprocessing the original SDGE CSV files.
 
 ### Development Server
 The app will be available at `http://localhost:5173`
@@ -87,12 +101,25 @@ src/
 └── App.tsx             # Main app component
 ```
 
-## Data Format
+## Contract Year Data
 
-The app loads rate data from `/public/rates.csv`, which should be in the format provided by SDGE:
-- CSV with headers matching "Current Year NBT Pricing Upload MIDAS.csv"
-- Times in UTC (converted to Pacific automatically)
-- See `Understanding Solar Billing Plan Export Pricing Web.pdf` for details
+### Which Contract Year Should You Use?
+
+Your rate structure depends on when you signed your SDGE Net Billing Tariff (NBT) agreement:
+
+- **2023 (NBT23)**: For customers who signed their contract in 2023
+- **2024 (NBT24)**: For customers who signed their contract in 2024
+- **2026 (NBT00)**: For customers who signed their contract in 2026 (current default)
+
+The contract year determines your rate schedule for the lifetime of your agreement. Use the dropdown selector in the app to choose your contract year.
+
+### Data Format
+
+The app loads rate data from optimized JSON files in `/public/`:
+- Preprocessed from SDGE's "NBT Pricing Upload MIDAS" CSV files
+- Times converted from UTC to Pacific Time
+- Combined generation + delivery rates
+- See `/scripts/README.md` for preprocessing details
 
 ## Code Philosophy
 

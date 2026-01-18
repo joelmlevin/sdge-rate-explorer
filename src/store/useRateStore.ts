@@ -6,6 +6,7 @@
 import { create } from 'zustand';
 import type { RateEntry, RateFilters } from '../types';
 import { loadRates, filterRates } from '../services/dataService';
+import { DEFAULT_CONTRACT_YEAR, type ContractYear } from '../config/contractYears';
 
 interface RateStore {
   // Data state
@@ -13,14 +14,16 @@ interface RateStore {
   filteredRates: RateEntry[];
   isLoading: boolean;
   error: string | null;
+  contractYear: ContractYear;
 
   // Filter state
   filters: RateFilters;
 
   // Actions
-  loadData: () => Promise<void>;
+  loadData: (year?: ContractYear) => Promise<void>;
   setFilters: (filters: Partial<RateFilters>) => void;
   resetFilters: () => void;
+  switchContractYear: (year: ContractYear) => Promise<void>;
 }
 
 /**
@@ -39,20 +42,23 @@ export const useRateStore = create<RateStore>((set, get) => ({
   filteredRates: [],
   isLoading: false,
   error: null,
+  contractYear: DEFAULT_CONTRACT_YEAR,
   filters: defaultFilters,
 
-  // Load data from CSV
-  loadData: async () => {
+  // Load data for a specific contract year
+  loadData: async (year?: ContractYear) => {
+    const contractYear = year ?? get().contractYear;
     set({ isLoading: true, error: null });
 
     try {
-      const rates = await loadRates();
+      const rates = await loadRates(contractYear);
       const filtered = filterRates(rates, get().filters);
 
       set({
         allRates: rates,
         filteredRates: filtered,
         isLoading: false,
+        contractYear,
       });
     } catch (error) {
       set({
@@ -81,5 +87,10 @@ export const useRateStore = create<RateStore>((set, get) => ({
       filters: defaultFilters,
       filteredRates: filtered,
     });
+  },
+
+  // Switch to a different contract year
+  switchContractYear: async (year: ContractYear) => {
+    await get().loadData(year);
   },
 }));

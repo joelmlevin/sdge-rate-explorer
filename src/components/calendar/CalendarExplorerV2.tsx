@@ -9,13 +9,15 @@ import MonthViewV2 from './MonthViewV2';
 import WeekViewV3 from './WeekViewV3';
 import DayViewV2 from './DayViewV2';
 import YearViewV2 from './YearViewV2';
+import ContractYearSelector from '../shared/ContractYearSelector';
 import { addMonths, subMonths, parse } from 'date-fns';
 import { designs, type DesignVariant } from '../../styles/designs';
+import type { ContractYear } from '../../config/contractYears';
 
 type ViewMode = 'day' | 'week' | 'month' | 'year';
 
 export default function CalendarExplorerV2() {
-  const { allRates } = useRateStore();
+  const { allRates, contractYear, switchContractYear, isLoading } = useRateStore();
 
   // Get current date
   const now = new Date();
@@ -98,18 +100,31 @@ export default function CalendarExplorerV2() {
     setViewMode('month');
   };
 
+  const handleYearChange = async (year: ContractYear) => {
+    await switchContractYear(year);
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: designSystem.colors.background }}>
       <div className="max-w-[1600px] mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="mb-6">
-            <h1 className="text-4xl font-bold mb-2" style={{ color: designSystem.colors.text.primary }}>
-              SDGE Rate Calendar
-            </h1>
-            <p className="text-sm" style={{ color: designSystem.colors.text.secondary }}>
-              Total rates (generation + delivery combined)
-            </p>
+          <div className="mb-6 flex items-start justify-between">
+            <div>
+              <h1 className="text-4xl font-bold mb-2" style={{ color: designSystem.colors.text.primary }}>
+                SDGE Rate Calendar
+              </h1>
+              <p className="text-sm" style={{ color: designSystem.colors.text.secondary }}>
+                Total rates (generation + delivery combined)
+              </p>
+            </div>
+
+            {/* Contract Year Selector */}
+            <ContractYearSelector
+              currentYear={contractYear}
+              onYearChange={handleYearChange}
+              isLoading={isLoading}
+            />
           </div>
 
           {/* Controls row */}
