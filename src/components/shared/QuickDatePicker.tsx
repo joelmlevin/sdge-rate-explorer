@@ -51,13 +51,17 @@ export default function QuickDatePicker({
   const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
   const dayOptions = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-  const handleOpen = () => {
-    // Reset to current date when opening
-    setSelectedYear(currentDate.getFullYear());
-    setSelectedMonth(currentDate.getMonth() + 1);
-    setSelectedDay(currentDate.getDate());
-    setError(null);
-    setIsOpen(true);
+  const handleToggle = () => {
+    if (isOpen) {
+      setIsOpen(false);
+    } else {
+      // Reset to current date when opening
+      setSelectedYear(currentDate.getFullYear());
+      setSelectedMonth(currentDate.getMonth() + 1);
+      setSelectedDay(currentDate.getDate());
+      setError(null);
+      setIsOpen(true);
+    }
   };
 
   const handleApply = () => {
@@ -113,7 +117,7 @@ export default function QuickDatePicker({
     <>
       {/* Trigger button */}
       <button
-        onClick={handleOpen}
+        onClick={handleToggle}
         className="px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
         title="Change date"
       >
@@ -135,11 +139,11 @@ export default function QuickDatePicker({
 
           {/* Modal content */}
           <div
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-2xl rounded-xl shadow-2xl border-2 border-gray-200 p-8"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl shadow-2xl border-2 border-gray-200 p-8"
             style={{
               zIndex: 1000000,
               width: 'calc(100% - 2rem)',
-              maxWidth: '42rem',
+              maxWidth: '21rem',
               backgroundColor: '#ffffff'
             }}
           >
