@@ -38,7 +38,7 @@ interface OptimizedRateData {
 /**
  * Load and parse the optimized JSON file for a specific contract year
  * Uses caching to avoid re-parsing on subsequent calls
- * @param contractYear The contract year to load (2023, 2024, or 2026)
+ * @param contractYear The contract year to load (2023, 2024, 2025, or 2026)
  */
 export async function loadRates(contractYear: ContractYear = DEFAULT_CONTRACT_YEAR): Promise<RateEntry[]> {
   // Validate contract year
