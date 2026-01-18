@@ -12,18 +12,6 @@ A web application for exploring San Diego Gas & Electric (SDGE) solar buyback ra
 ### Daily View
 - **7-Day Forecast**: See today's rates plus the next 6 days
 - **Visual Hourly Rates**: Color-coded bars showing relative rates throughout each day
-- **Battery Recommendations**: Smart suggestions for when to charge vs. discharge your battery
-- **Peak Rate Identification**: Quickly spot the best and worst times to export
-
-### Rate Visualization
-- Green bars = High export rates (top 25% for that day)
-- Red bars = Low export rates (bottom 25% for that day)
-- Hover over any hour to see exact rate in cents/kWh
-
-### Battery Strategy
-- Automatic identification of optimal discharge windows (high rates)
-- Suggestions for charging from solar instead of exporting (low rates)
-- Context-aware recommendations based on each day's rate distribution
 
 ## Technology Stack
 
@@ -40,7 +28,7 @@ A web application for exploring San Diego Gas & Electric (SDGE) solar buyback ra
 ### Prerequisites
 - Node.js 18+ and npm
 
-### Installation
+### Local installation
 
 ```bash
 # Clone the repository
@@ -65,7 +53,7 @@ npm run deploy
 
 ✅ **Optimized Data**: This application uses a preprocessed `rates.json` file (6.8 MB) that is included in the repository. The preprocessing reduces data size by 82% and load time from 5-10 seconds to ~200ms (50x faster).
 
-**Note**: If you need to update the rate data, see `/scripts/README.md` for instructions on preprocessing the original SDGE CSV file.
+**Note**: If you need to update the rate data, see `/scripts/README.md` for instructions on preprocessing the original SDGE CSV file. Source data were obtained at: https://www.sdge.com/solar/solar-billing-plan/export-pricing
 
 ### Development Server
 The app will be available at `http://localhost:5173`
