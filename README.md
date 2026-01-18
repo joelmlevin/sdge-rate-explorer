@@ -205,6 +205,12 @@ Loads and parses CSV data. Includes caching for performance.
 2. Deploy the `dist` folder to your hosting service
 3. Make sure `rates.csv` is in the `public` folder
 
+### Preview GitHub Pages (PRs)
+Pull requests from branches in this repository publish previews at:
+`https://joelmlevin.github.io/sdge-rate-explorer/previews/<pr-number-or-branch>/`
+
+You can trigger the "Preview GitHub Pages" workflow manually for a branch via GitHub Actions.
+
 ### Important Notes
 - The CSV file is ~40MB, so initial load may take a few seconds
 - Data is cached after first load for performance
