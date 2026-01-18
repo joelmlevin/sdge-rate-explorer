@@ -43,14 +43,14 @@ interface OptimizedRateData {
  * @throws Error if data is invalid
  */
 function validateRateData(data: unknown): asserts data is OptimizedRateData {
-  if (!data || typeof data !== 'object') {
+  if (!data || typeof data !== 'object' || data === null) {
     throw new Error('Invalid rate data: not an object');
   }
 
   const obj = data as Record<string, unknown>;
 
   // Check for required meta field
-  if (!obj.meta || typeof obj.meta !== 'object') {
+  if (!obj.meta || typeof obj.meta !== 'object' || obj.meta === null) {
     throw new Error('Invalid rate data: missing or invalid meta field');
   }
 

@@ -11,19 +11,22 @@ const PACIFIC_TZ = 'America/Los_Angeles';
 
 /**
  * Convert UTC date and time strings from CSV to Pacific Time ISO string
- * CSV times are in UTC (8 hours ahead of Pacific Standard Time, 7 hours ahead of Pacific Daylight Time)
+ * Pacific Standard Time is 8 hours behind UTC (UTC-8)
+ * Pacific Daylight Time is 7 hours behind UTC (UTC-7)
  *
  * @param dateStr - Date string in "M/D/YYYY" format
  * @param timeStr - Time string in "H:MM:SS" format
  * @returns ISO 8601 timestamp in Pacific Time
  */
 export function utcToPacific(dateStr: string, timeStr: string): string {
-  // Parse the date and time as UTC
+  // Parse the date and time string
+  // Note: The CSV provides UTC times, and we parse them as-is
   const dateTimeStr = `${dateStr} ${timeStr}`;
-  const utcDate = parse(dateTimeStr, 'M/d/yyyy H:mm:ss', new Date());
+  const parsedDate = parse(dateTimeStr, 'M/d/yyyy H:mm:ss', new Date());
   
-  // Convert UTC to Pacific Time (handles DST automatically)
-  const pacificDate = toZonedTime(utcDate, PACIFIC_TZ);
+  // Convert to Pacific Time (handles DST automatically)
+  // toZonedTime interprets the input as if it's in the target timezone
+  const pacificDate = toZonedTime(parsedDate, PACIFIC_TZ);
 
   return pacificDate.toISOString();
 }
