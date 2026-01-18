@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { format, isValid } from 'date-fns';
 
 interface QuickDatePickerProps {
@@ -109,8 +110,10 @@ export default function QuickDatePicker({
     }
   };
 
+  const modalRoot = document.getElementById('modal-root');
+
   return (
-    <div className="relative">
+    <>
       {/* Trigger button */}
       <button
         onClick={handleOpen}
@@ -120,9 +123,10 @@ export default function QuickDatePicker({
         Change Date
       </button>
 
-      {/* Modal backdrop */}
-      {isOpen && (
+      {/* Modal - rendered in portal */}
+      {isOpen && modalRoot && createPortal(
         <>
+          {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black bg-opacity-50"
             style={{ zIndex: 9998 }}
@@ -221,8 +225,9 @@ export default function QuickDatePicker({
               </div>
             </div>
           </div>
-        </>
+        </>,
+        modalRoot
       )}
-    </div>
+    </>
   );
 }
