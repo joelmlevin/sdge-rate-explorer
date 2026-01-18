@@ -7,6 +7,10 @@ on:
 permissions:
   contents: write
 
+env:
+  IS_FORK: ${{ github.event.repository.fork }}
+  IS_SAME_REPO_PR: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+
 concurrency:
   group: preview-pages-${{ github.event.pull_request.number || github.ref_name }}
   cancel-in-progress: true
@@ -18,8 +22,6 @@ jobs:
     env:
       PREVIEW_DIR: previews/${{ github.event.pull_request.number || github.ref_name }}
       REPO_NAME: ${{ github.event.repository.name }}
-      IS_FORK: ${{ github.event.repository.fork }}
-      IS_SAME_REPO_PR: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
