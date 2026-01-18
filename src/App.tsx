@@ -3,22 +3,24 @@
  */
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRateStore } from './store/useRateStore';
 import CalendarExplorerV2 from './components/calendar/CalendarExplorerV2';
 import LoadingSpinner from './components/shared/LoadingSpinner';
 import ErrorMessage from './components/shared/ErrorMessage';
 
 function App() {
-  const { loadData, isLoading, error } = useRateStore();
+  const { loadData, isLoading, error, allRates } = useRateStore();
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   // Load data on mount
   useEffect(() => {
-    loadData();
+    loadData().then(() => setInitialLoadComplete(true));
   }, [loadData]);
 
-  // Show loading state
-  if (isLoading) {
+  // Show loading state ONLY for initial load
+  // After that, CalendarExplorerV2 will handle loading states internally
+  if (!initialLoadComplete && isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <LoadingSpinner message="Loading SDGE rate data..." />
@@ -26,8 +28,8 @@ function App() {
     );
   }
 
-  // Show error state
-  if (error) {
+  // Show error state only if we have no data at all
+  if (error && allRates.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <ErrorMessage error={error} />
