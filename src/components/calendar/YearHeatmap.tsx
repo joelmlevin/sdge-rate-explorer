@@ -31,13 +31,16 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
 
     console.log('Filtered rates for year:', filtered.length);
 
-    // Group by date
+    // Group by date and hour, summing generation + delivery
     const byDate = new Map<string, Map<number, number>>();
     filtered.forEach(r => {
       if (!byDate.has(r.date)) {
         byDate.set(r.date, new Map());
       }
-      byDate.get(r.date)!.set(r.hour, r.totalRate);
+      const hourMap = byDate.get(r.date)!;
+      const currentRate = hourMap.get(r.hour) || 0;
+      // Add this rate to the hour total (to sum generation + delivery)
+      hourMap.set(r.hour, currentRate + r.rate);
     });
 
     // Get sorted array of dates
@@ -53,13 +56,15 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
 
   // Calculate color scale (95th percentile winsorization)
   const { minRate, maxRate, p95 } = useMemo(() => {
-    const allRates = rates
-      .filter(r => {
-        const rateDate = new Date(r.date + 'T00:00:00');
-        return rateDate.getFullYear() === year;
-      })
-      .map(r => r.totalRate)
-      .sort((a, b) => a - b);
+    // Get all aggregated hourly rates from dataGrid
+    const allRates: number[] = [];
+    dataGrid.forEach(hourMap => {
+      hourMap.forEach(rate => {
+        allRates.push(rate);
+      });
+    });
+
+    allRates.sort((a, b) => a - b);
 
     if (allRates.length === 0) {
       return { minRate: 0, maxRate: 0, p95: 0 };
@@ -76,7 +81,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal' }: YearHea
     console.log('Sample rates:', allRates.slice(0, 10));
 
     return result;
-  }, [rates, year]);
+  }, [dataGrid]);
 
   // Color scale function
   const getColor = (rate: number | undefined): string => {
