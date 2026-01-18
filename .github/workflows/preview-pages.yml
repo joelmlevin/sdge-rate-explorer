@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build-deploy:
-    if: env.IS_FORK_PR == 'false'
+    if: env.IS_FORK_PR != 'true'
     runs-on: ubuntu-latest
     env:
       PREVIEW_DIR: previews/${{ github.event.pull_request.number || github.ref_name }}
