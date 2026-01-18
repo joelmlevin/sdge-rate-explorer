@@ -8,7 +8,7 @@ import MonthView from './MonthView';
 import WeekView from './WeekView';
 import DayView from './DayView';
 import YearView from './YearView';
-import { addMonths, subMonths, parse, format } from 'date-fns';
+import { addMonths, subMonths, parse } from 'date-fns';
 
 type ViewMode = 'day' | 'week' | 'month' | 'year';
 

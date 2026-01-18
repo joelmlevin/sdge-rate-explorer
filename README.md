@@ -50,11 +50,6 @@ cd sdge-rate-explorer
 # Install dependencies
 npm install
 
-# IMPORTANT: Add the rates.csv data file
-# See public/README.md for instructions on obtaining this file
-# The 38 MB rates.csv file is not included in the repository
-cp /path/to/your/rates.csv public/rates.csv
-
 # Start development server
 npm run dev
 
@@ -63,9 +58,14 @@ npm run build
 
 # Preview production build
 npm run preview
+
+# Deploy to GitHub Pages
+npm run deploy
 ```
 
-⚠️ **Note**: This application requires a `rates.csv` file (38 MB) that is not included in the repository. See `public/README.md` for details on obtaining this file.
+✅ **Optimized Data**: This application uses a preprocessed `rates.json` file (6.8 MB) that is included in the repository. The preprocessing reduces data size by 82% and load time from 5-10 seconds to ~200ms (50x faster).
+
+**Note**: If you need to update the rate data, see `/scripts/README.md` for instructions on preprocessing the original SDGE CSV file.
 
 ### Development Server
 The app will be available at `http://localhost:5173`

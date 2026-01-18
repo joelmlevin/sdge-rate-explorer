@@ -30,9 +30,9 @@ export interface RateEntry {
   timestamp: string;              // ISO 8601 timestamp in Pacific Time
   date: string;                   // Date string "YYYY-MM-DD" in Pacific Time
   hour: number;                   // Hour 0-23 in Pacific Time
-  rate: number;                   // Rate in $/kWh
-  rateCents: number;              // Rate in cents/kWh (for display)
-  rateType: 'generation' | 'delivery';  // Parsed from RIN
+  rate: number;                   // Total rate in $/kWh (generation + delivery)
+  rateCents: number;              // Total rate in cents/kWh (for display)
+  rateType: 'generation' | 'delivery';  // Parsed from RIN (kept for compatibility)
   rateName: string;               // e.g., "NBT00", "NBT24"
   dayType: 'weekday' | 'weekend' | 'holiday';  // Parsed from DayStart
   month: number;                  // 1-12
@@ -40,6 +40,11 @@ export interface RateEntry {
   year: number;                   // Full year
   dayOfWeek: number;              // 0=Sunday, 1=Monday, ..., 6=Saturday
   dayOfWeekName: string;          // "Monday", "Tuesday", etc.
+  // Separate generation and delivery rates (from optimized format)
+  generationRate?: number;        // Generation rate in $/kWh
+  deliveryRate?: number;          // Delivery rate in $/kWh
+  generationRateCents?: number;   // Generation rate in cents/kWh
+  deliveryRateCents?: number;     // Delivery rate in cents/kWh
 }
 
 /**

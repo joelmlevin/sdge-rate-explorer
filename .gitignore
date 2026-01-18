@@ -23,8 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
-# Large data files (38 MB - too large for GitHub)
+# Large data files (38 MB CSV - too large for GitHub)
 public/rates.csv
+
+# Keep the optimized JSON (6.8 MB - suitable for GitHub Pages)
+# public/rates.json is NOT ignored - it will be committed
 
 # Root directory data files (parent directory)
 ../Current Year NBT Pricing Upload MIDAS.csv

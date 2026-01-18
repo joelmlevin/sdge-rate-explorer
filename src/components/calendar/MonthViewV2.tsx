@@ -89,7 +89,7 @@ interface DayCellProps {
 function DayCell({ daySummary, onClick, design }: DayCellProps) {
   const designSystem = designs[design];
   const [showBarChart, setShowBarChart] = useState(false);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleMouseEnter = () => {
     if (daySummary && daySummary.hourlyRates && daySummary.hourlyRates.length > 0) {

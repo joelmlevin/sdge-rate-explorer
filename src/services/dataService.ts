@@ -1,26 +1,41 @@
 /**
  * Data service for loading and processing SDGE rate data
- * Handles CSV parsing and caching
+ * Loads optimized JSON format (generated from CSV via preprocess-rates.js)
  */
 
-import Papa from 'papaparse';
-import type { RawRateEntry, RateEntry, RateFilters } from '../types';
-import {
-  utcToPacific,
-  getDateFromTimestamp,
-  getMonthName,
-  getDayOfWeekName,
-  getDayType,
-  parseHourFromValueName,
-} from '../utils/dateUtils';
+import type { RateEntry, RateFilters } from '../types';
+import { getMonthName, getDayOfWeekName } from '../utils/dateUtils';
 import { toCents } from '../utils/rateUtils';
 
 // In-memory cache for processed data
 let cachedRates: RateEntry[] | null = null;
 let cachePromise: Promise<RateEntry[]> | null = null;
 
+// Type for the optimized JSON format
+interface OptimizedRateData {
+  meta: {
+    generated: string;
+    version: string;
+    dateRange: [string, string];
+    totalHours: number;
+    totalDays: number;
+    description: string;
+    format: string;
+    fields: string[];
+    dayTypes: Record<string, string>;
+  };
+  data: Array<[
+    string,  // date
+    number,  // hour
+    number,  // generation
+    number,  // delivery
+    number,  // total
+    string   // dayType (w/e/h)
+  ]>;
+}
+
 /**
- * Load and parse the CSV file
+ * Load and parse the optimized JSON file
  * Uses caching to avoid re-parsing on subsequent calls
  */
 export async function loadRates(): Promise<RateEntry[]> {
@@ -35,81 +50,74 @@ export async function loadRates(): Promise<RateEntry[]> {
   }
 
   // Start loading
-  cachePromise = new Promise((resolve, reject) => {
-    Papa.parse<RawRateEntry>('/rates.csv', {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      dynamicTyping: true,
-      complete: (results) => {
-        try {
-          const processed = processRawRates(results.data);
-          cachedRates = processed;
-          resolve(processed);
-        } catch (error) {
-          reject(error);
-        }
-      },
-      error: (error) => {
-        reject(new Error(`Failed to load rates: ${error.message}`));
-      },
-    });
-  });
+  cachePromise = (async () => {
+    try {
+      const response = await fetch('/rates.json');
+
+      if (!response.ok) {
+        throw new Error(`Failed to load rates: ${response.status} ${response.statusText}`);
+      }
+
+      const json: OptimizedRateData = await response.json();
+      const processed = processOptimizedData(json);
+      cachedRates = processed;
+      return processed;
+    } catch (error) {
+      cachePromise = null; // Reset on error
+      throw new Error(`Failed to load rates: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  })();
 
   return cachePromise;
 }
 
 /**
- * Process raw CSV data into structured RateEntry objects
+ * Process optimized JSON data into RateEntry objects
+ * Format: [date, hour, generation, delivery, total, dayType]
  */
-function processRawRates(rawData: RawRateEntry[]): RateEntry[] {
-  return rawData
-    .filter((row) => {
-      // Filter out invalid rows
-      return row.RIN && row.DateStart && row.TimeStart && row.Value !== undefined;
-    })
-    .map((row) => {
-      // Convert UTC timestamp to Pacific Time
-      const timestamp = utcToPacific(row.DateStart, row.TimeStart);
-      const date = getDateFromTimestamp(timestamp);
+function processOptimizedData(data: OptimizedRateData): RateEntry[] {
+  const dayTypeMap: Record<string, 'weekday' | 'weekend' | 'holiday'> = {
+    'w': 'weekday',
+    'e': 'weekend',
+    'h': 'holiday'
+  };
 
-      // Parse hour from ValueName (more reliable than timestamp due to UTC conversion)
-      const hour = parseHourFromValueName(row.ValueName);
+  return data.data.map((entry) => {
+    const [date, hour, generationRate, deliveryRate, totalRate, dayTypeCode] = entry;
 
-      // Determine rate type from RIN
-      const rateType: 'generation' | 'delivery' = row.RIN.includes('XXSD') ? 'generation' : 'delivery';
+    // Create timestamp string (Pacific Time)
+    const timestamp = `${date}T${String(hour).padStart(2, '0')}:00:00-08:00`;
 
-      // Create date object for extracting month, year, day of week
-      const dateObj = new Date(timestamp);
-      const month = dateObj.getMonth() + 1; // 0-indexed, so add 1
-      const year = dateObj.getFullYear();
-      const dayOfWeek = dateObj.getDay(); // 0=Sunday, 6=Saturday
+    // Parse date components
+    const dateObj = new Date(date);
+    const month = dateObj.getMonth() + 1;
+    const year = dateObj.getFullYear();
+    const dayOfWeek = dateObj.getDay();
 
-      // Determine day type
-      const dayType = getDayType(row.DayStart);
+    // Decode day type
+    const dayType = dayTypeMap[dayTypeCode] || 'weekday';
 
-      return {
-        timestamp,
-        date,
-        hour,
-        rate: row.Value,
-        rateCents: toCents(row.Value),
-        rateType,
-        rateName: row.RateName,
-        dayType,
-        month,
-        monthName: getMonthName(month),
-        year,
-        dayOfWeek,
-        dayOfWeekName: getDayOfWeekName(dayOfWeek),
-      };
-    })
-    .sort((a, b) => {
-      // Sort by date, then by hour
-      const dateCompare = a.date.localeCompare(b.date);
-      if (dateCompare !== 0) return dateCompare;
-      return a.hour - b.hour;
-    });
+    return {
+      timestamp,
+      date,
+      hour,
+      rate: totalRate,
+      rateCents: toCents(totalRate),
+      rateType: 'generation', // Not needed anymore - we have combined data
+      rateName: 'NBT',
+      dayType,
+      month,
+      monthName: getMonthName(month),
+      year,
+      dayOfWeek,
+      dayOfWeekName: getDayOfWeekName(dayOfWeek),
+      // Add generation and delivery rates as separate fields
+      generationRate,
+      deliveryRate,
+      generationRateCents: toCents(generationRate),
+      deliveryRateCents: toCents(deliveryRate),
+    };
+  });
 }
 
 /**

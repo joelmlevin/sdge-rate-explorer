@@ -1,0 +1,12 @@
+{
+  "name": "sdge-rate-preprocessor",
+  "version": "1.0.0",
+  "description": "Preprocessing tools for SDGE rate data",
+  "type": "module",
+  "scripts": {
+    "preprocess": "node preprocess-rates.js"
+  },
+  "dependencies": {
+    "csv-parse": "^5.5.6"
+  }
+}

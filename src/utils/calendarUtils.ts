@@ -3,7 +3,7 @@
  */
 
 import type { RateEntry } from '../types';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, startOfWeek, endOfWeek, addDays } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek } from 'date-fns';
 
 export interface HourlyRate {
   hour: number;
