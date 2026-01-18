@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build-deploy:
-    if: env.IS_FORK_PR != 'true'
+    if: env.IS_FORK_PR == 'false'
     runs-on: ubuntu-latest
     env:
       PREVIEW_DIR: previews/${{ github.event.pull_request.number || github.ref_name }}
@@ -24,7 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
       - name: Set repo name
         run: echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> "$GITHUB_ENV"
       - name: Setup Node
