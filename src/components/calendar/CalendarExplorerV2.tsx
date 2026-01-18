@@ -3,17 +3,17 @@
  * Production-ready with polished UI and UX
  */
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRateStore } from '../../store/useRateStore';
 import MonthViewV2 from './MonthViewV2';
 import WeekViewV3 from './WeekViewV3';
 import DayViewV2 from './DayViewV2';
 import YearViewV2 from './YearViewV2';
 import ContractYearSelector from '../shared/ContractYearSelector';
-import { addMonths, subMonths, parse } from 'date-fns';
+import { addMonths, endOfMonth, endOfWeek, endOfYear, format, parse, startOfMonth, startOfWeek, startOfYear, subMonths } from 'date-fns';
 import { designs, type DesignVariant } from '../../styles/designs';
 import type { ContractYear } from '../../config/contractYears';
-import { CONTRACT_YEAR_INFO } from '../../config/contractYears';
+import { getDateRange } from '../../services/dataService';
 
 type ViewMode = 'day' | 'week' | 'month' | 'year';
 
@@ -32,6 +32,39 @@ export default function CalendarExplorerV2() {
   const design: DesignVariant = 'minimal';
 
   const designSystem = designs[design];
+  const availableRange = useMemo(() => (
+    allRates.length ? getDateRange(allRates) : null
+  ), [allRates]);
+  const parsedRange = useMemo(() => {
+    if (!availableRange) return null;
+    return {
+      min: parse(availableRange.min, 'yyyy-MM-dd', new Date()),
+      max: parse(availableRange.max, 'yyyy-MM-dd', new Date()),
+    };
+  }, [availableRange]);
+  const activeRange = useMemo(() => {
+    if (viewMode === 'day') {
+      return { start: selectedDate, end: selectedDate };
+    }
+    if (viewMode === 'week') {
+      return {
+        start: startOfWeek(selectedDate, { weekStartsOn: 0 }),
+        end: endOfWeek(selectedDate, { weekStartsOn: 0 }),
+      };
+    }
+    if (viewMode === 'month') {
+      const monthStart = startOfMonth(new Date(selectedYear, selectedMonth - 1));
+      return { start: monthStart, end: endOfMonth(monthStart) };
+    }
+    const yearStart = startOfYear(new Date(selectedYear, 0));
+    return { start: yearStart, end: endOfYear(yearStart) };
+  }, [selectedDate, selectedMonth, selectedYear, viewMode]);
+  const suggestedDate = useMemo(() => {
+    if (!parsedRange || !activeRange) return null;
+    if (activeRange.end < parsedRange.min) return parsedRange.min;
+    if (activeRange.start > parsedRange.max) return parsedRange.max;
+    return null;
+  }, [activeRange, parsedRange]);
 
   // Navigation handlers
   const goToToday = () => {
@@ -102,26 +135,13 @@ export default function CalendarExplorerV2() {
   };
 
   const handleYearChange = async (year: ContractYear) => {
-    // Calculate the year offset based on where the data actually starts
-    // This maintains the same relative position in the data
-    // e.g., Feb 2025 in NBT25 data → Feb 2026 in NBT26 data
-    const oldDataStartYear = CONTRACT_YEAR_INFO[contractYear].dataStartYear;
-    const newDataStartYear = CONTRACT_YEAR_INFO[year].dataStartYear;
-    const yearOffset = newDataStartYear - oldDataStartYear;
-
-    // Update selected dates to maintain relative position in the dataset
-    const newYear = selectedYear + yearOffset;
-    const newDate = new Date(
-      selectedDate.getFullYear() + yearOffset,
-      selectedDate.getMonth(),
-      selectedDate.getDate()
-    );
-
-    setSelectedYear(newYear);
-    setSelectedDate(newDate);
-
-    // Switch the contract year data
     await switchContractYear(year);
+  };
+  const handleReturnToValidRange = () => {
+    if (!suggestedDate) return;
+    setSelectedDate(suggestedDate);
+    setSelectedYear(suggestedDate.getFullYear());
+    setSelectedMonth(suggestedDate.getMonth() + 1);
   };
 
   return (
@@ -207,6 +227,28 @@ export default function CalendarExplorerV2() {
             </div>
           </div>
         </div>
+
+        {suggestedDate && !isLoading && parsedRange && (
+          <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="font-semibold">
+                  No data available for this contract year in the selected {viewMode} view.
+                </p>
+                <p className="mt-1 text-xs text-amber-800">
+                  Available dates: {format(parsedRange.min, 'MMM d, yyyy')} – {format(parsedRange.max, 'MMM d, yyyy')}.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleReturnToValidRange}
+                className="rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-semibold text-amber-900 shadow-sm hover:bg-amber-100"
+              >
+                Go to {format(suggestedDate, 'MMM d, yyyy')}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* View content */}
         <div>
