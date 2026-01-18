@@ -124,8 +124,8 @@ export default function QuickDatePicker({
       {isOpen && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-white"
-            style={{ opacity: 0.8 }}
+            className="fixed inset-0 z-40"
+            style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             onClick={() => setIsOpen(false)}
           />
 
