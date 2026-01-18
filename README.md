@@ -1,6 +1,11 @@
 # SDGE Rate Explorer
 
+[![GitHub](https://img.shields.io/badge/GitHub-joelmlevin%2Fsdge--rate--explorer-blue?logo=github)](https://github.com/joelmlevin/sdge-rate-explorer)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](#license)
+
 A web application for exploring San Diego Gas & Electric (SDGE) solar buyback rates. Designed specifically for solar + battery system owners to optimize when to charge batteries and export power to the grid.
+
+**🔗 Repository**: https://github.com/joelmlevin/sdge-rate-explorer
 
 ## Features
 
@@ -38,8 +43,17 @@ A web application for exploring San Diego Gas & Electric (SDGE) solar buyback ra
 ### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/joelmlevin/sdge-rate-explorer.git
+cd sdge-rate-explorer
+
 # Install dependencies
 npm install
+
+# IMPORTANT: Add the rates.csv data file
+# See public/README.md for instructions on obtaining this file
+# The 38 MB rates.csv file is not included in the repository
+cp /path/to/your/rates.csv public/rates.csv
 
 # Start development server
 npm run dev
@@ -50,6 +64,8 @@ npm run build
 # Preview production build
 npm run preview
 ```
+
+⚠️ **Note**: This application requires a `rates.csv` file (38 MB) that is not included in the repository. See `public/README.md` for details on obtaining this file.
 
 ### Development Server
 The app will be available at `http://localhost:5173`
@@ -186,3 +202,11 @@ Created: 2026-01-17
 
 - SDGE for providing export pricing data
 - California Public Utilities Commission (CPUC) for rate structure
+
+## License
+
+MIT License - see LICENSE file for details
+
+## Contributing
+
+This is a personal project, but issues and suggestions are welcome! Please open an issue on GitHub if you find bugs or have feature requests.
