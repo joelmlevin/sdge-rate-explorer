@@ -13,11 +13,13 @@ concurrency:
 
 jobs:
   build-deploy:
-    # Only deploy previews from branches in this repo (skip forks).
-    if: github.event.repository.fork == false && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    if: env.IS_FORK == 'false' && env.IS_SAME_REPO_PR == 'true'
     runs-on: ubuntu-latest
     env:
       PREVIEW_DIR: previews/${{ github.event.pull_request.number || github.ref_name }}
+      REPO_NAME: ${{ github.event.repository.name }}
+      IS_FORK: ${{ github.event.repository.fork }}
+      IS_SAME_REPO_PR: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,7 +35,7 @@ jobs:
       - name: Build preview
         run: npm run build
         env:
-          VITE_BASE_PATH: /sdge-rate-explorer/${{ env.PREVIEW_DIR }}/
+          VITE_BASE_PATH: /${{ env.REPO_NAME }}/${{ env.PREVIEW_DIR }}/
       - name: Deploy preview
         uses: peaceiris/actions-gh-pages@v4
         with:
