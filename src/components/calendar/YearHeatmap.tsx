@@ -191,11 +191,11 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
         <div className="flex-1 overflow-x-auto">
         <div className="inline-block">
           {/* Month labels at top */}
-          <div className="relative mb-1" style={{ marginLeft: '48px', height: '20px' }}>
+          <div className="relative mb-2" style={{ marginLeft: '48px', height: '28px' }}>
             {monthPositions.map(({ month, index }) => (
               <div
                 key={index}
-                className="absolute text-xs font-bold"
+                className="absolute text-[11px] font-bold"
                 style={{
                   left: `${index * cellWidth}px`,
                   color: designSystem.colors.text.secondary,
@@ -340,12 +340,6 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
 
             <div className="text-[9px] mt-2 italic text-center" style={{ color: designSystem.colors.text.tertiary }}>
               Cube root scale
-            </div>
-            <div className="text-[8px] mt-1 text-center" style={{ color: designSystem.colors.text.tertiary }}>
-              {toCents(minRate).toFixed(1)}¢ – {toCents(maxRate).toFixed(1)}¢
-            </div>
-            <div className="text-[8px] mt-1 text-center" style={{ color: designSystem.colors.text.tertiary }}>
-              (full range)
             </div>
           </div>
         </div>

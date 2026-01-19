@@ -200,13 +200,11 @@ export default function CalendarExplorerV2() {
               {(['day', 'week', 'month', 'year'] as ViewMode[]).map((mode) => {
                 const label = mode.charAt(0).toUpperCase() + mode.slice(1);
                 const handleViewModeClick = () => {
-                  // When switching from month to week/day, ensure selectedDate is in the current month
+                  // When switching from month to week/day, always ensure selectedDate matches the displayed month
                   if (viewMode === 'month' && (mode === 'week' || mode === 'day')) {
+                    // Always set to first of current month to ensure consistency
                     const currentMonthDate = new Date(selectedYear, selectedMonth - 1, 1);
-                    if (selectedDate.getMonth() !== selectedMonth - 1 ||
-                        selectedDate.getFullYear() !== selectedYear) {
-                      setSelectedDate(currentMonthDate);
-                    }
+                    setSelectedDate(currentMonthDate);
                   }
                   setViewMode(mode);
                 };
