@@ -142,6 +142,14 @@ function DayCell({ daySummary, onClick, design }: DayCellProps) {
     return `${hour - 12}p`;
   };
 
+  // Format hour for peak display
+  const formatPeakHour = (hour: number): string => {
+    if (hour === 0) return 'Peak: 12am';
+    if (hour === 12) return 'Peak: 12pm';
+    if (hour < 12) return `Peak: ${hour}am`;
+    return `Peak: ${hour - 12}pm`;
+  };
+
   // Calculate bar chart scale
   const yMax = Math.max(...hourlyRates.map(h => h.totalRate));
   const yMin = Math.min(...hourlyRates.map(h => h.totalRate));
@@ -190,9 +198,9 @@ function DayCell({ daySummary, onClick, design }: DayCellProps) {
             </div>
 
             {/* Best export hour */}
-            <div className="text-xs font-mono mt-1 tabular-nums"
+            <div className="text-xs mt-1"
                  style={{ color: designSystem.colors.text.tertiary }}>
-              @{formatHourCompact(bestExportHour)}
+              {formatPeakHour(bestExportHour)}
             </div>
           </div>
         </div>

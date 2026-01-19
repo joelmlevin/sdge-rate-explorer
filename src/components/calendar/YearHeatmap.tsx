@@ -60,8 +60,8 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
     };
   }, [rates, year]);
 
-  // Calculate color scale (1st to 99th percentile for better high-end discrimination)
-  const { p1, p99 } = useMemo(() => {
+  // Calculate color scale (full range)
+  const { minRate, maxRate } = useMemo(() => {
     // Get all aggregated hourly rates from dataGrid
     const allRates: number[] = [];
     dataGrid.forEach(hourMap => {
@@ -73,14 +73,10 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
     allRates.sort((a, b) => a - b);
 
     if (allRates.length === 0) {
-      return { p1: 0, p99: 0, minRate: 0, maxRate: 0 };
+      return { minRate: 0, maxRate: 0 };
     }
 
-    const p1Index = Math.floor(allRates.length * 0.01);
-    const p99Index = Math.floor(allRates.length * 0.99);
     const result = {
-      p1: allRates[p1Index],
-      p99: allRates[p99Index],
       minRate: allRates[0],
       maxRate: allRates[allRates.length - 1]
     };
@@ -108,21 +104,17 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
     return () => window.removeEventListener('resize', updateCellWidth);
   }, [dateArray.length]);
 
-  // Color scale function with logarithmic mapping (1st to 99th percentile)
+  // Color scale function with cubic root transformation (full range)
+  // Cube root provides good perceptual discrimination across the full range
   const getColor = (rate: number | undefined): string => {
     if (rate === undefined) return '#e5e7eb'; // Gray for missing data
 
-    // Clamp rate between p1 and p99
-    const clampedRate = Math.max(p1, Math.min(rate, p99));
+    // Clamp to valid range
+    const clampedRate = Math.max(minRate, Math.min(rate, maxRate));
 
-    // Apply logarithmic transformation for better discrimination across range
-    // Add small epsilon to avoid log(0)
-    const epsilon = 0.001;
-    const logMin = Math.log(p1 + epsilon);
-    const logMax = Math.log(p99 + epsilon);
-    const logRate = Math.log(clampedRate + epsilon);
-
-    const normalized = Math.max(0, Math.min(1, (logRate - logMin) / (logMax - logMin)));
+    // Cubic root transformation for perceptual uniformity
+    // Works well across wide dynamic ranges
+    const normalized = Math.pow((clampedRate - minRate) / (maxRate - minRate), 1/3);
 
     // Purple (low) -> Teal (medium) -> Yellow (high)
     if (normalized < 0.5) {
@@ -134,21 +126,18 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
     }
   };
 
-  // Generate legend color stops for display
+  // Generate legend color stops for display using cubic root transformation
   const legendStops = useMemo(() => {
     const stops = [];
     const numStops = 8;
 
-    const epsilon = 0.001;
-    const logMin = Math.log(p1 + epsilon);
-    const logMax = Math.log(p99 + epsilon);
-
     for (let i = 0; i <= numStops; i++) {
       const normalized = i / numStops;
-      const logValue = logMin + normalized * (logMax - logMin);
-      const rate = Math.exp(logValue) - epsilon;
 
-      // Get color for this rate
+      // Inverse of cubic root: normalized^3 scaled to rate range
+      const rate = minRate + Math.pow(normalized, 3) * (maxRate - minRate);
+
+      // Get color for this normalized position
       let color: string;
       if (normalized < 0.5) {
         const t = normalized * 2;
@@ -162,7 +151,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
     }
 
     return stops;
-  }, [p1, p99]);
+  }, [minRate, maxRate]);
 
   if (dateArray.length === 0) {
     return (
@@ -195,7 +184,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
           Hourly Rate Heatmap
         </h3>
         <div className="text-xs" style={{ color: designSystem.colors.text.tertiary }}>
-          {dateArray.length} days × 24 hours | Logarithmic color scale
+          {dateArray.length} days × 24 hours
         </div>
       </div>
 
@@ -223,18 +212,26 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
           </div>
 
           {/* Hour rows */}
-          {Array.from({ length: 24 }, (_, hour) => (
-            <div key={hour} className="flex items-center">
-              {/* Hour label */}
-              <div
-                className="text-[10px] pr-2 text-right"
-                style={{
-                  width: '48px',
-                  color: designSystem.colors.text.secondary
-                }}
-              >
-                {hour}:00
-              </div>
+          {Array.from({ length: 24 }, (_, hour) => {
+            // Show labels every 2 hours (12a, 2a, 4a, etc.)
+            const showLabel = hour % 2 === 0;
+            const label = hour === 0 ? '12a' :
+                         hour < 12 ? `${hour}a` :
+                         hour === 12 ? '12p' :
+                         `${hour - 12}p`;
+
+            return (
+              <div key={hour} className="flex items-center" style={{ lineHeight: 0 }}>
+                {/* Hour label */}
+                <div
+                  className="text-[10px] pr-2 text-right"
+                  style={{
+                    width: '48px',
+                    color: designSystem.colors.text.secondary
+                  }}
+                >
+                  {showLabel ? label : ''}
+                </div>
 
               {/* Day columns */}
               <div className="flex">
@@ -256,7 +253,9 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
                       style={{
                         width: `${cellWidth}px`,
                         height: '8px',
-                        backgroundColor: color
+                        backgroundColor: color,
+                        display: 'block',
+                        lineHeight: 0
                       }}
                       onClick={() => onDateClick?.(date)}
                       onMouseEnter={(e) => {
@@ -276,7 +275,8 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
                 })}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
         </div>
 
@@ -342,13 +342,13 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
             </div>
 
             <div className="text-[9px] mt-2 italic text-center" style={{ color: designSystem.colors.text.tertiary }}>
-              Log scale
+              Cube root scale
             </div>
             <div className="text-[8px] mt-1 text-center" style={{ color: designSystem.colors.text.tertiary }}>
-              {toCents(p1).toFixed(1)}¢ – {toCents(p99).toFixed(1)}¢
+              {toCents(minRate).toFixed(1)}¢ – {toCents(maxRate).toFixed(1)}¢
             </div>
             <div className="text-[8px] mt-1 text-center" style={{ color: designSystem.colors.text.tertiary }}>
-              (1st–99th %ile)
+              (full range)
             </div>
           </div>
         </div>

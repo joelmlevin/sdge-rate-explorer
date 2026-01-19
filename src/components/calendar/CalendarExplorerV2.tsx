@@ -332,32 +332,6 @@ export default function CalendarExplorerV2() {
             />
           )}
         </div>
-
-        {/* Info footer */}
-        <div className={`mt-8 ${designSystem.borders.radius} p-6`}
-             style={{
-               backgroundColor: designSystem.colors.surface,
-               border: `${designSystem.borders.width} solid ${designSystem.colors.border}`,
-             }}>
-          <h3 className="text-sm font-semibold mb-3" style={{ color: designSystem.colors.text.primary }}>
-            About the Data
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm"
-               style={{ color: designSystem.colors.text.secondary }}>
-            <div>
-              • Rates = <strong>generation + delivery</strong> combined (total cost/credit)
-            </div>
-            <div>
-              • <strong>Best export hour</strong> = highest rate for selling solar to grid
-            </div>
-            <div>
-              • Hover over elements for detailed breakdowns
-            </div>
-            <div>
-              • Click any day to see hour-by-hour analysis
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

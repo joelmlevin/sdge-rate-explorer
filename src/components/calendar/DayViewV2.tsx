@@ -133,23 +133,6 @@ export default function DayViewV2({ rates, date, design = 'minimal', datePickerC
           </div>
         </div>
       </div>
-
-      {/* Insights */}
-      <div className="px-8 pb-8">
-        <div className={`${designSystem.borders.radius} p-4`}
-             style={{ backgroundColor: '#ECFDF5', borderColor: '#10B981', border: '1px solid' }}>
-          <h3 className="text-sm font-semibold text-emerald-900 mb-2">💡 Battery Strategy</h3>
-          <div className="text-sm text-emerald-800 space-y-1">
-            <div>
-              <strong>Best time to export solar:</strong> {formatHour(bestExportHour)}
-              ({toCents(hourlyRates[bestExportHour]?.totalRate || 0).toFixed(2)}¢/kWh)
-            </div>
-            <div className="text-xs mt-2 text-emerald-700">
-              Hover over bars to see generation vs delivery breakdown for each hour.
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

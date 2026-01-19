@@ -53,7 +53,7 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
 
       {/* Grid container - 8 columns (1 for time + 7 for days) */}
       <div className="overflow-x-auto">
-        <div style={{ display: 'grid', gridTemplateColumns: '80px repeat(7, 1fr)', minWidth: '900px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, minmax(70px, 1fr))', minWidth: '600px' }}>
 
           {/* Day headers row */}
           <div style={{
@@ -119,27 +119,38 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
                 const normalized = (hourRate.totalRate - minRate) / (maxRate - minRate || 1);
                 const bgColor = getColorForRate(normalized, 'viridis');
 
+                // Calculate luminance to determine text color for readability
+                const getLuminance = (hex: string) => {
+                  const rgb = parseInt(hex.slice(1), 16);
+                  const r = (rgb >> 16) & 0xff;
+                  const g = (rgb >> 8) & 0xff;
+                  const b = (rgb >> 0) & 0xff;
+                  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                };
+                const textColor = getLuminance(bgColor) > 0.5 ? '#000000' : '#FFFFFF';
+
                 return (
                   <div
                     key={`${day.date}-${hour}`}
-                    className="flex items-center justify-center text-sm font-bold text-white cursor-pointer hover:ring-2 hover:ring-inset hover:ring-blue-500 transition-all group relative"
+                    className="flex items-center justify-center text-sm font-bold cursor-pointer hover:ring-2 hover:ring-inset hover:ring-blue-500 transition-all group relative"
                     style={{
                       backgroundColor: bgColor,
                       borderLeft: `1px solid ${designSystem.colors.borderLight}`,
                       borderBottom: hour === 23 ? 'none' : `1px solid ${designSystem.colors.borderLight}`,
                       height: '36px',
+                      color: textColor,
                     }}
                   >
-                    <span className="drop-shadow">{toCents(hourRate.totalRate).toFixed(1)}¢</span>
+                    <span>{toCents(hourRate.totalRate).toFixed(1)}¢</span>
 
-                    {/* Hover tooltip - with white background for readability */}
+                    {/* Hover tooltip - with opaque white background for readability */}
                     <div className="absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      <div className="text-xs whitespace-nowrap shadow-2xl" style={{ backgroundColor: 'rgba(255, 255, 255, 0.75)', borderRadius: '12px', padding: '8px 11px' }}>
-                        <div className="font-bold mb-1 text-gray-900">
+                      <div className="text-xs whitespace-nowrap shadow-2xl" style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)', borderRadius: '12px', padding: '8px 11px', border: '1px solid rgba(0, 0, 0, 0.1)' }}>
+                        <div className="font-bold mb-1" style={{ color: '#000000' }}>
                           {format(day.dateObj, 'EEE, MMM d')} at {formatHour(hour)}
                         </div>
-                        <div className="font-bold text-base text-gray-900">{toCents(hourRate.totalRate).toFixed(2)}¢/kWh</div>
-                        <div className="text-[10px] text-gray-600 mt-1.5 pt-1.5 border-t border-gray-300 space-y-0.5">
+                        <div className="font-bold text-base" style={{ color: '#000000' }}>{toCents(hourRate.totalRate).toFixed(2)}¢/kWh</div>
+                        <div className="text-[10px] mt-1.5 pt-1.5 border-t space-y-0.5" style={{ color: '#333333', borderColor: 'rgba(0, 0, 0, 0.2)' }}>
                           <div>Gen: {toCents(hourRate.generationRate).toFixed(2)}¢</div>
                           <div>Del: {toCents(hourRate.deliveryRate).toFixed(2)}¢</div>
                         </div>

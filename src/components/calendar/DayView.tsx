@@ -95,24 +95,6 @@ export default function DayView({ rates, date }: DayViewProps) {
           })}
         </div>
       </div>
-
-      {/* Recommendations */}
-      <div className="px-6 pb-6">
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-green-900 mb-2">💡 Battery Strategy</h3>
-          <div className="text-sm text-green-800 space-y-1">
-            <div>
-              <strong>Best time to export solar:</strong> {formatHour(bestExportHour)} ({toCents(hourlyRates[bestExportHour]?.totalRate || 0).toFixed(2)}¢/kWh)
-            </div>
-            <div>
-              <strong>Worst time to export:</strong> {formatHour(worstExportHour)} ({toCents(hourlyRates[worstExportHour]?.totalRate || 0).toFixed(2)}¢/kWh)
-            </div>
-            <div className="mt-2 text-xs">
-              Charge battery during low-rate hours and discharge during high-rate hours for maximum savings.
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

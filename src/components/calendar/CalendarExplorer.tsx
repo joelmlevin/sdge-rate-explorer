@@ -193,28 +193,6 @@ export default function CalendarExplorer() {
           />
         )}
       </div>
-
-      {/* Info footer */}
-      <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-blue-900 mb-2">About the Data</h3>
-        <div className="text-sm text-blue-800 space-y-1">
-          <div>
-            • Rates shown are the <strong>sum of generation + delivery</strong> rates (total cost/credit)
-          </div>
-          <div>
-            • <strong>Best export hour</strong> = hour with highest generation credit (best time to sell solar back to grid)
-          </div>
-          <div>
-            • Purple colors = low rates, Yellow colors = high rates
-          </div>
-          <div>
-            • Weekend days are highlighted in blue
-          </div>
-          <div>
-            • Click any day in month view to see detailed hour-by-hour breakdown
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
