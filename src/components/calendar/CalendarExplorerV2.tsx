@@ -154,20 +154,11 @@ export default function CalendarExplorerV2() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: designSystem.colors.background }}>
+    <div className="flex-1" style={{ backgroundColor: designSystem.colors.background }}>
       <div className="max-w-[1600px] mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="mb-6 flex items-start justify-between">
-            <div>
-              <h1 className="text-4xl font-bold mb-2" style={{ color: designSystem.colors.text.primary }}>
-                SDGE Rate Calendar
-              </h1>
-              <p className="text-sm" style={{ color: designSystem.colors.text.secondary }}>
-                Total rates (generation + delivery combined)
-              </p>
-            </div>
-
+          <div className="mb-6 flex items-end justify-end">
             {/* Contract Year Selector */}
             <ContractYearSelector
               currentYear={contractYear}

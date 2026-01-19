@@ -8,6 +8,8 @@ import { useRateStore } from './store/useRateStore';
 import CalendarExplorerV2 from './components/calendar/CalendarExplorerV2';
 import LoadingSpinner from './components/shared/LoadingSpinner';
 import ErrorMessage from './components/shared/ErrorMessage';
+import Navigation from './components/shared/Navigation';
+import About from './components/shared/About';
 
 function App() {
   const { loadData, isLoading, error, allRates } = useRateStore();
@@ -39,10 +41,14 @@ function App() {
 
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <Routes>
-        <Route path="/" element={<Navigate to="/calendar" replace />} />
-        <Route path="/calendar" element={<CalendarExplorerV2 />} />
-      </Routes>
+      <div className="min-h-screen flex flex-col">
+        <Navigation />
+        <About />
+        <Routes>
+          <Route path="/" element={<Navigate to="/calendar" replace />} />
+          <Route path="/calendar" element={<CalendarExplorerV2 />} />
+        </Routes>
+      </div>
     </BrowserRouter>
   );
 }
