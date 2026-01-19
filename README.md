@@ -1,7 +1,6 @@
 # SDGE Rate Explorer
 
 [![GitHub](https://img.shields.io/badge/GitHub-joelmlevin%2Fsdge--rate--explorer-blue?logo=github)](https://github.com/joelmlevin/sdge-rate-explorer)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](#license)
 
 A web application for exploring San Diego Gas & Electric (SDGE) solar buyback rates across multiple contract years. Designed specifically for solar + battery system owners to optimize when to charge batteries and export power to the grid.
 
@@ -228,7 +227,8 @@ Created: 2026-01-17
 
 ## License
 
-MIT License - see LICENSE file for details
+License: PolyForm Noncommercial 1.0.0 (noncommercial use only).
+Commercial use requires a separate paid license. See COMMERCIAL-LICENSE.md.
 
 ## Contributing
 
