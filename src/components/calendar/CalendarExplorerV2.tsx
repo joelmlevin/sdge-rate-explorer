@@ -3,7 +3,7 @@
  * Production-ready with polished UI and UX
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useRateStore } from '../../store/useRateStore';
 import MonthViewV2 from './MonthViewV2';
 import WeekViewV3 from './WeekViewV3';
@@ -148,6 +148,46 @@ export default function CalendarExplorerV2() {
     // Keep the same view mode - don't change it
   };
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input field
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      const key = e.key.toLowerCase();
+
+      // Arrow keys for navigation
+      if (key === 'arrowleft') {
+        e.preventDefault();
+        goToPrevious();
+      } else if (key === 'arrowright') {
+        e.preventDefault();
+        goToNext();
+      }
+      // View mode shortcuts (only switch if not already on that view)
+      else if (key === 'd' && viewMode !== 'day') {
+        setViewMode('day');
+      } else if (key === 'w' && viewMode !== 'week') {
+        setViewMode('week');
+      } else if (key === 'm' && viewMode !== 'month') {
+        // When switching to month, ensure selectedDate is in the current month
+        const currentMonthDate = new Date(selectedYear, selectedMonth - 1, 1);
+        if (selectedDate.getMonth() !== selectedMonth - 1 ||
+            selectedDate.getFullYear() !== selectedYear) {
+          setSelectedDate(currentMonthDate);
+        }
+        setViewMode('month');
+      } else if (key === 'y' && viewMode !== 'year') {
+        setViewMode('year');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [viewMode, selectedDate, selectedYear, selectedMonth]);
+
   return (
     <div className="flex-1" style={{ backgroundColor: designSystem.colors.background }}>
       <div className="max-w-[1600px] mx-auto px-6 py-8">
@@ -157,20 +197,34 @@ export default function CalendarExplorerV2() {
           <div className="flex items-center justify-between gap-4">
             {/* View mode selector */}
             <div className="flex gap-2">
-              {(['day', 'week', 'month', 'year'] as ViewMode[]).map((mode) => (
-                <button
-                  key={mode}
-                  onClick={() => setViewMode(mode)}
-                  className={`px-4 py-2 ${designSystem.borders.radius} text-sm font-medium transition-all`}
-                  style={{
-                    backgroundColor: viewMode === mode ? designSystem.colors.accent : designSystem.colors.surface,
-                    color: viewMode === mode ? '#FFFFFF' : designSystem.colors.text.primary,
-                    border: `${designSystem.borders.width} solid ${viewMode === mode ? designSystem.colors.accent : designSystem.colors.border}`,
-                  }}
-                >
-                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                </button>
-              ))}
+              {(['day', 'week', 'month', 'year'] as ViewMode[]).map((mode) => {
+                const label = mode.charAt(0).toUpperCase() + mode.slice(1);
+                const handleViewModeClick = () => {
+                  // When switching from month to week/day, ensure selectedDate is in the current month
+                  if (viewMode === 'month' && (mode === 'week' || mode === 'day')) {
+                    const currentMonthDate = new Date(selectedYear, selectedMonth - 1, 1);
+                    if (selectedDate.getMonth() !== selectedMonth - 1 ||
+                        selectedDate.getFullYear() !== selectedYear) {
+                      setSelectedDate(currentMonthDate);
+                    }
+                  }
+                  setViewMode(mode);
+                };
+                return (
+                  <button
+                    key={mode}
+                    onClick={handleViewModeClick}
+                    className={`px-4 py-2 ${designSystem.borders.radius} text-sm font-medium transition-all`}
+                    style={{
+                      backgroundColor: viewMode === mode ? designSystem.colors.accent : designSystem.colors.surface,
+                      color: viewMode === mode ? '#FFFFFF' : designSystem.colors.text.primary,
+                      border: `${designSystem.borders.width} solid ${viewMode === mode ? designSystem.colors.accent : designSystem.colors.border}`,
+                    }}
+                  >
+                    <span style={{ textDecoration: 'underline' }}>{label.charAt(0)}</span>{label.slice(1)}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Navigation */}

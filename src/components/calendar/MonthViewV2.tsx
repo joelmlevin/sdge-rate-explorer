@@ -122,10 +122,11 @@ function DayCell({ daySummary, onClick, design }: DayCellProps) {
   if (!daySummary) {
     return (
       <div
-        className="aspect-square border-r last:border-r-0"
+        className="border-r last:border-r-0"
         style={{
           backgroundColor: designSystem.colors.background,
-          borderColor: designSystem.colors.borderLight
+          borderColor: designSystem.colors.borderLight,
+          aspectRatio: '1 / 0.85'
         }}
       />
     );
@@ -173,18 +174,18 @@ function DayCell({ daySummary, onClick, design }: DayCellProps) {
 
   return (
     <div
-      className={`aspect-square border-r last:border-r-0 ${onClick ? 'cursor-pointer' : ''} relative overflow-hidden`}
-      style={cellStyle}
+      className={`border-r last:border-r-0 ${onClick ? 'cursor-pointer' : ''} relative overflow-hidden`}
+      style={{...cellStyle, aspectRatio: '1 / 0.85'}}
       onClick={onClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       {!showBarChart ? (
         // Normal view
-        <div className="h-full flex flex-col p-3">
+        <div className="h-full flex flex-col p-2">
           {/* Day number */}
           <div
-            className={designSystem.typography.dayNumber}
+            className="text-xl font-extrabold"
             style={{ color: designSystem.colors.text.primary }}
           >
             {dayNumber}
@@ -192,13 +193,13 @@ function DayCell({ daySummary, onClick, design }: DayCellProps) {
 
           {/* Rate range */}
           <div className="flex-1 flex flex-col justify-center items-start">
-            <div className={`${designSystem.typography.rateValue} leading-tight`}
+            <div className="text-xs leading-tight"
                  style={{ color: designSystem.colors.text.primary }}>
               {toCents(minRate).toFixed(1)}-{toCents(maxRate).toFixed(1)}¢
             </div>
 
             {/* Best export hour */}
-            <div className="text-xs mt-1"
+            <div className="text-[10px] mt-0.5"
                  style={{ color: designSystem.colors.text.tertiary }}>
               {formatPeakHour(bestExportHour)}
             </div>

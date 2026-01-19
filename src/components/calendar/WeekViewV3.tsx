@@ -52,8 +52,8 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
       </div>
 
       {/* Grid container - 8 columns (1 for time + 7 for days) */}
-      <div className="overflow-x-auto">
-        <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, minmax(70px, 1fr))', minWidth: '600px' }}>
+      <div>
+        <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, minmax(70px, 1fr))' }}>
 
           {/* Day headers row */}
           <div style={{

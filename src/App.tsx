@@ -45,8 +45,7 @@ function App() {
         <Navigation />
         <About />
         <Routes>
-          <Route path="/" element={<Navigate to="/calendar" replace />} />
-          <Route path="/calendar" element={<CalendarExplorerV2 />} />
+          <Route path="/" element={<CalendarExplorerV2 />} />
         </Routes>
       </div>
     </BrowserRouter>

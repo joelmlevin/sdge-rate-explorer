@@ -179,13 +179,10 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
 
   return (
     <div className="p-8 space-y-4" ref={containerRef}>
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4">
         <h3 className="text-2xl font-bold" style={{ color: designSystem.colors.text.primary }}>
           Hourly Rate Heatmap
         </h3>
-        <div className="text-xs" style={{ color: designSystem.colors.text.tertiary }}>
-          {dateArray.length} days × 24 hours
-        </div>
       </div>
 
       {/* Heatmap grid and legend container */}
@@ -194,11 +191,11 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
         <div className="flex-1 overflow-x-auto">
         <div className="inline-block">
           {/* Month labels at top */}
-          <div className="relative mb-1" style={{ marginLeft: '48px', height: '16px' }}>
+          <div className="relative mb-1" style={{ marginLeft: '48px', height: '20px' }}>
             {monthPositions.map(({ month, index }) => (
               <div
                 key={index}
-                className="absolute text-[9px] font-bold"
+                className="absolute text-xs font-bold"
                 style={{
                   left: `${index * cellWidth}px`,
                   color: designSystem.colors.text.secondary,

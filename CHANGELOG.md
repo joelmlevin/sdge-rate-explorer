@@ -1,9 +1,48 @@
 # Changelog
 
-All notable changes to the SDGE Rate Explorer will be documented in this file.
+All notable changes to the SDG&E Rate Explorer will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [2.1.0] - 2026-01-19
+
+### Added
+- **Keyboard Shortcuts**: Navigate the app without touching the mouse
+  - Arrow keys: Left/Right for Previous/Next navigation
+  - D/W/M/Y keys: Switch between Day/Week/Month/Year views
+  - First letter underlined in view mode buttons as visual hint
+  - Shortcuts ignore input fields to avoid conflicts with typing
+  - Pressing current view's shortcut does nothing (no unnecessary reloads)
+
+### Changed
+- **Simplified Contract Year Dropdown**: Removed explanatory text box at bottom for cleaner UI
+- **Improved Footer Readability**: Increased spacing between links (gap-4, px-5) with bullet separators
+- **Year Heatmap Refinements**:
+  - Removed "365 days × 24 hours" cell count text for cleaner header
+  - Increased month abbreviation font size (9px → 12px/text-xs) for better readability
+- **Month View Enhancement**: Redesigned cell hierarchy for better scanability
+  - Decreased cell height (aspect ratio 1:0.85 instead of 1:1) for more compact layout
+  - Date numbers: Much larger and bolder (text-xl font-extrabold) for prominence
+  - Rate ranges: Smaller text (text-xs) to emphasize dates
+  - Peak hour labels: Even smaller (text-[10px]) for subtle detail
+- **Navigation Improvements**:
+  - Date now persists when switching from Month → Week view
+  - Previously: Switching to week view would jump to current date
+  - Now: Stays in the selected month when switching views
+- **Routing Fix**: Removed /calendar route to fix page refresh 404 errors
+  - App now serves at root path only
+  - Page refreshes work correctly on GitHub Pages deployment
+
+### Fixed
+- **Week View Scrolling**: Removed nested horizontal scroll container
+  - Week view grid now part of main page flow
+  - No more confusing sub-window with its own scrollbar
+  - Better responsive behavior maintained with minmax(70px, 1fr) columns
+
+### Technical
+- Updated branding from "SDGE" to "SDG&E" throughout application
+- Improved TypeScript type safety in Navigation component
 
 ## [2.0.0] - 2026-01-19
 

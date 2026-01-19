@@ -104,13 +104,6 @@ export default function ContractYearSelector({
                 );
               })}
             </div>
-
-            {/* Helper text */}
-            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 rounded-b-lg">
-              <p className="text-xs text-gray-600">
-                Your rate structure depends on when you submitted your solar application to SDGE. Select the year you applied.
-              </p>
-            </div>
           </div>
         </>
       )}
