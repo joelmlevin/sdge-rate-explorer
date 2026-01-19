@@ -9,18 +9,16 @@ import MonthViewV2 from './MonthViewV2';
 import WeekViewV3 from './WeekViewV3';
 import DayViewV2 from './DayViewV2';
 import YearViewV2 from './YearViewV2';
-import ContractYearSelector from '../shared/ContractYearSelector';
 import QuickDatePicker from '../shared/QuickDatePicker';
 import Footer from '../shared/Footer';
 import { addMonths, endOfMonth, endOfWeek, endOfYear, format, parse, startOfMonth, startOfWeek, startOfYear, subMonths } from 'date-fns';
 import { designs, type DesignVariant } from '../../styles/designs';
-import type { ContractYear } from '../../config/contractYears';
 import { getDateRange } from '../../services/dataService';
 
 type ViewMode = 'day' | 'week' | 'month' | 'year';
 
 export default function CalendarExplorerV2() {
-  const { allRates, contractYear, switchContractYear, isLoading } = useRateStore();
+  const { allRates, isLoading } = useRateStore();
 
   // Get current date
   const now = new Date();
@@ -136,9 +134,6 @@ export default function CalendarExplorerV2() {
     setViewMode('month');
   };
 
-  const handleYearChange = async (year: ContractYear) => {
-    await switchContractYear(year);
-  };
   const handleReturnToValidRange = () => {
     if (!suggestedDate) return;
     setSelectedDate(suggestedDate);
@@ -158,15 +153,6 @@ export default function CalendarExplorerV2() {
       <div className="max-w-[1600px] mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="mb-6 flex items-end justify-end">
-            {/* Contract Year Selector */}
-            <ContractYearSelector
-              currentYear={contractYear}
-              onYearChange={handleYearChange}
-              isLoading={isLoading}
-            />
-          </div>
-
           {/* Controls row */}
           <div className="flex items-center justify-between gap-4">
             {/* View mode selector */}
