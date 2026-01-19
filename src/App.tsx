@@ -2,7 +2,7 @@
  * Main App component with routing
  */
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useRateStore } from './store/useRateStore';
 import CalendarExplorerV2 from './components/calendar/CalendarExplorerV2';
