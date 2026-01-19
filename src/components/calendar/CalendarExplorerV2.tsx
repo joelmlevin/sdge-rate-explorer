@@ -11,6 +11,7 @@ import DayViewV2 from './DayViewV2';
 import YearViewV2 from './YearViewV2';
 import ContractYearSelector from '../shared/ContractYearSelector';
 import QuickDatePicker from '../shared/QuickDatePicker';
+import Footer from '../shared/Footer';
 import { addMonths, endOfMonth, endOfWeek, endOfYear, format, parse, startOfMonth, startOfWeek, startOfYear, subMonths } from 'date-fns';
 import { designs, type DesignVariant } from '../../styles/designs';
 import type { ContractYear } from '../../config/contractYears';
@@ -333,6 +334,9 @@ export default function CalendarExplorerV2() {
           )}
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
