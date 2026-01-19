@@ -11,7 +11,6 @@ A web application for visualizing and exploring San Diego Gas & Electric (SDG&E)
 ### Multi-Year Contract Support
 - **Contract Year Selector**: Choose your contract year (2023, 2024, 2025, or 2026)
 - **Fast Switching**: Seamlessly switch between contract years with optimized caching
-- **Smart Loading**: Each year's data (~7 MB) loads on demand in ~200ms
 
 ### Multiple View Modes
 - **Day View**: Detailed hour-by-hour analysis with bar charts
@@ -24,11 +23,6 @@ A web application for visualizing and exploring San Diego Gas & Electric (SDG&E)
 - Hover tooltips with detailed breakdowns
 - Identification of best export hours (highest rates)
 - Responsive design for desktop and mobile
-
-### Battery Strategy (Coming Soon)
-- Automatic identification of optimal discharge windows (high rates)
-- Suggestions for charging from solar instead of exporting (low rates)
-- Context-aware recommendations based on rate patterns
 
 ## Technology Stack
 
