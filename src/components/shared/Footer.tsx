@@ -14,8 +14,9 @@ export default function Footer() {
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-600">
             <button
-              onClick={() => setShowAbout(!showAbout)}
-              className="hover:text-gray-900 transition-colors underline"
+              type="button"
+              onClick={() => setShowAbout(true)}
+              className="hover:text-gray-900 transition-colors hover:underline cursor-pointer bg-transparent border-none p-0"
             >
               About This Tool
             </button>
@@ -24,7 +25,7 @@ export default function Footer() {
               href="https://github.com/joelmlevin/sdge-rate-explorer"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-gray-900 transition-colors"
+              className="hover:text-gray-900 transition-colors hover:underline"
             >
               GitHub
             </a>
@@ -33,14 +34,15 @@ export default function Footer() {
               href="https://venmo.com/joelmlevin"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-1 hover:text-gray-900 transition-colors hover:underline"
             >
               <span className="text-base">☕</span> Buy Me a Coffee
             </a>
 
             <button
-              onClick={() => setShowFaq(!showFaq)}
-              className="hover:text-gray-900 transition-colors underline"
+              type="button"
+              onClick={() => setShowFaq(true)}
+              className="hover:text-gray-900 transition-colors hover:underline cursor-pointer bg-transparent border-none p-0"
             >
               FAQ
             </button>
@@ -49,7 +51,7 @@ export default function Footer() {
               href="https://github.com/joelmlevin/sdge-rate-explorer/discussions/categories/feature-requests"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-gray-900 transition-colors"
+              className="hover:text-gray-900 transition-colors hover:underline"
             >
               Make a Recommendation
             </a>
