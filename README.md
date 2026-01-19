@@ -230,6 +230,3 @@ Created: 2026-01-17
 License: PolyForm Noncommercial 1.0.0 (noncommercial use only).
 Commercial use requires a separate paid license. See COMMERCIAL-LICENSE.md.
 
-## Contributing
-
-This is a personal project, but issues and suggestions are welcome! Please open an issue on GitHub if you find bugs or have feature requests.
