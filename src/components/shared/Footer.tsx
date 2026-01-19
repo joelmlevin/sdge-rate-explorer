@@ -6,12 +6,12 @@ export default function Footer() {
   return (
     <footer className="mt-auto border-t border-gray-200 bg-white">
       <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-gray-600">
+        <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-gray-600">
           <a
             href="https://github.com/joelmlevin/sdge-rate-explorer"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-gray-900 transition-colors hover:underline px-3 py-1"
+            className="hover:text-gray-900 transition-colors hover:underline px-4 py-1"
           >
             GitHub
           </a>
@@ -20,7 +20,7 @@ export default function Footer() {
             href="https://venmo.com/joelmlevin"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-gray-900 transition-colors hover:underline px-3 py-1"
+            className="hover:text-gray-900 transition-colors hover:underline px-4 py-1"
           >
             Support This Project
           </a>
@@ -29,7 +29,7 @@ export default function Footer() {
             href="https://github.com/joelmlevin/sdge-rate-explorer/discussions/categories/feature-requests"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-gray-900 transition-colors hover:underline px-3 py-1"
+            className="hover:text-gray-900 transition-colors hover:underline px-4 py-1"
           >
             Make a Recommendation
           </a>

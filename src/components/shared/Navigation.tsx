@@ -4,12 +4,13 @@
 
 import ContractYearSelector from './ContractYearSelector';
 import { useRateStore } from '../../store/useRateStore';
+import type { ContractYear } from '../../config/contractYears';
 
 export default function Navigation() {
   const { contractYear, switchContractYear, isLoading } = useRateStore();
 
-  const handleYearChange = (year: string) => {
-    switchContractYear(year as any);
+  const handleYearChange = async (year: ContractYear) => {
+    await switchContractYear(year);
   };
 
   return (
