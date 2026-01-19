@@ -337,10 +337,6 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
                 })}
               </div>
             </div>
-
-            <div className="text-[9px] mt-2 italic text-center" style={{ color: designSystem.colors.text.tertiary }}>
-              Cube root scale
-            </div>
           </div>
         </div>
       </div>
