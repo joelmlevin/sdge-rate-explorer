@@ -191,7 +191,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
         <div className="flex-1 overflow-x-auto">
         <div className="inline-block">
           {/* Month labels at top */}
-          <div className="relative mb-2" style={{ marginLeft: '48px', height: '28px' }}>
+          <div className="relative mb-0" style={{ marginLeft: '48px', height: '28px' }}>
             {monthPositions.map(({ month, index }) => (
               <div
                 key={index}
@@ -246,7 +246,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
                   return (
                     <div
                       key={date}
-                      className="cursor-pointer hover:ring-2 hover:ring-black transition-all"
+                      className="cursor-pointer"
                       style={{
                         width: `${cellWidth}px`,
                         height: '8px',
