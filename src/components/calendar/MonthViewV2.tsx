@@ -185,7 +185,7 @@ function DayCell({ daySummary, onClick, design }: DayCellProps) {
         <div className="h-full flex flex-col p-2">
           {/* Day number */}
           <div
-            className="text-xl font-extrabold"
+            className="text-3xl font-extrabold"
             style={{ color: designSystem.colors.text.primary }}
           >
             {dayNumber}
@@ -199,7 +199,7 @@ function DayCell({ daySummary, onClick, design }: DayCellProps) {
             </div>
 
             {/* Best export hour */}
-            <div className="text-[10px] mt-0.5"
+            <div className="text-xs mt-0.5"
                  style={{ color: designSystem.colors.text.tertiary }}>
               {formatPeakHour(bestExportHour)}
             </div>

@@ -5,6 +5,25 @@ All notable changes to the SDG&E Rate Explorer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-01-19
+
+### Changed
+- **Month View Visual Hierarchy**: Further improved date prominence and text sizing
+  - Date numbers: Increased from text-xl to text-3xl for maximum visibility
+  - Peak hour labels: Increased from text-[10px] to text-xs to match rate range size
+  - Better utilization of available cell space
+- **Footer Spacing Refinement**: Adjusted link spacing for optimal readability
+  - Bullet separator margins: Set to 12px (approximately 3 character spaces)
+  - Creates comfortable visual separation without excessive whitespace
+
+### Fixed
+- **Year Heatmap Month Label Spacing**: Reduced top padding to balance with y-axis
+  - Month label container height: Reduced from 28px to 20px
+  - Added 2px bottom margin for subtle separation from heatmap grid
+  - Creates even spacing on both x-axis and y-axis for visual balance
+- **Year Heatmap Hover Indicator**: Removed distracting black ring outline on cell hover
+  - Cells now show color and tooltip without additional visual overlay
+
 ## [2.1.0] - 2026-01-19
 
 ### Added
