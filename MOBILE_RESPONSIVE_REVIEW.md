@@ -40,11 +40,11 @@
 ## Improvement Plan (If Enhancements Are Needed)
 
 1. **Performance regression check**
-   - Run a Lighthouse comparison (main vs. mobile-responsive) to confirm no layout shift regressions and stable TTI on desktop.
-2. **Heatmap resize handling**
-   - Consider migrating `window.innerWidth` checks to a `ResizeObserver` on the container to avoid global resize work.
-3. **Optional Year Heatmap simplification for small screens**
-   - Provide a toggle to show monthly summaries only when the heatmap cell width drops below 2px.
+   - Run a Lighthouse comparison (main vs. mobile-responsive) to confirm no layout shift regressions and stable TTI on desktop (manual follow-up).
+2. **Heatmap resize handling (implemented)**
+   - Switched to a `ResizeObserver` on the heatmap container to avoid global resize listeners.
+3. **Optional Year Heatmap simplification for small screens (implemented)**
+   - Added an automatic compact-mode notice with a toggle to hide/show the heatmap when cell width drops below 2px.
 
 ## Mobile Performance Evaluation (After Improvement Plan)
 
@@ -55,6 +55,7 @@
 - **Year view**: Month grid collapses to two columns with readable cards.
 - **Week view**: 7-column grid remains visible without horizontal scroll.
 - **Year heatmap**: Legend relocates above the grid and remains readable on mobile.
+- **Heatmap compact mode**: Toggle appears on dense layouts and can hide/show the grid.
 
 ### Mobile Performance Notes
 - **Rendering**: No observed jank during initial view load in the tested viewport.

@@ -21,8 +21,10 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
   const designSystem = designs[design];
   const containerRef = useRef<HTMLDivElement>(null);
   const [cellWidth, setCellWidth] = useState(2);
+  const [isCompactView, setIsCompactView] = useState(false);
   const [hoveredCell, setHoveredCell] = useState<{ date: string; hour: number; rate: number } | null>(null);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [compactViewPreference, setCompactViewPreference] = useState<'show' | 'hide' | null>(null);
 
   // Organize data: Map<date, Map<hour, rate>>
   const { dateArray, dataGrid } = useMemo(() => {
@@ -60,6 +62,19 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
     };
   }, [rates, year]);
 
+  const monthPositions = useMemo(() => {
+    const positions: Array<{ month: string; index: number }> = [];
+    dateArray.forEach((date, idx) => {
+      const dateObj = new Date(date + 'T00:00:00');
+      const day = dateObj.getDate();
+      if (day === 1 || (idx === 0 && positions.length === 0)) {
+        const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
+        positions.push({ month, index: idx });
+      }
+    });
+    return positions;
+  }, [dateArray]);
+
   // Calculate color scale (full range)
   const { minRate, maxRate } = useMemo(() => {
     // Get all aggregated hourly rates from dataGrid
@@ -89,20 +104,34 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
 
   // Dynamic cell width calculation based on container width
   useEffect(() => {
-    const updateCellWidth = () => {
-      if (containerRef.current && dateArray.length > 0) {
-        const containerWidth = containerRef.current.offsetWidth;
-        const hourLabelWidth = 48;
-        const availableWidth = containerWidth - hourLabelWidth - 32; // 32px for padding
-        const calculatedWidth = Math.max(1, Math.floor(availableWidth / dateArray.length));
-        setCellWidth(Math.min(calculatedWidth, 4)); // Cap at 4px max for visual consistency
-      }
+    if (!containerRef.current || dateArray.length === 0) {
+      return;
+    }
+
+    const updateCellWidth = (containerWidth: number) => {
+      const hourLabelWidth = window.innerWidth < 640 ? 32 : 48;
+      const padding = window.innerWidth < 640 ? 16 : 32;
+      const availableWidth = containerWidth - hourLabelWidth - padding;
+      const calculatedWidth = Math.max(1, Math.floor(availableWidth / dateArray.length));
+      const nextWidth = Math.min(calculatedWidth, 4);
+      setCellWidth(nextWidth);
+      const nextIsCompact = nextWidth < 2;
+      setIsCompactView(nextIsCompact);
     };
 
-    updateCellWidth();
-    window.addEventListener('resize', updateCellWidth);
-    return () => window.removeEventListener('resize', updateCellWidth);
+    const observer = new ResizeObserver(entries => {
+      entries.forEach(entry => {
+        updateCellWidth(entry.contentRect.width);
+      });
+    });
+
+    observer.observe(containerRef.current);
+    updateCellWidth(containerRef.current.offsetWidth);
+
+    return () => observer.disconnect();
   }, [dateArray.length]);
+
+  const showHeatmap = !isCompactView || compactViewPreference === 'show';
 
   // Color scale function with cubic root transformation (full range)
   // Cube root provides good perceptual discrimination across the full range
@@ -163,20 +192,6 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
     );
   }
 
-  // Calculate month positions for labels
-  const monthPositions = useMemo(() => {
-    const positions: Array<{ month: string; index: number }> = [];
-    dateArray.forEach((date, idx) => {
-      const dateObj = new Date(date + 'T00:00:00');
-      const day = dateObj.getDate();
-      if (day === 1 || (idx === 0 && positions.length === 0)) {
-        const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
-        positions.push({ month, index: idx });
-      }
-    });
-    return positions;
-  }, [dateArray]);
-
   return (
     <div className="p-8 space-y-4" ref={containerRef}>
       <div className="mb-4">
@@ -185,161 +200,177 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
         </h3>
       </div>
 
-      {/* Heatmap grid and legend container */}
-      <div className="flex gap-6">
-        {/* Heatmap grid: X=days, Y=hours */}
-        <div className="flex-1 overflow-x-auto">
-        <div className="inline-block">
-          {/* Month labels at top */}
-          <div className="relative" style={{ marginLeft: '48px', height: '20px', marginBottom: '2px' }}>
-            {monthPositions.map(({ month, index }) => (
-              <div
-                key={index}
-                className="absolute text-[11px] font-bold"
-                style={{
-                  left: `${index * cellWidth}px`,
-                  color: designSystem.colors.text.secondary,
-                  writingMode: 'vertical-rl',
-                  textOrientation: 'mixed'
-                }}
-              >
-                {month}
-              </div>
-            ))}
+      {isCompactView && (
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p>Heatmap is dense on small screens. Use the monthly summary above for quick scanning.</p>
+            <button
+              type="button"
+              onClick={() => setCompactViewPreference(showHeatmap ? 'hide' : 'show')}
+              className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-100"
+            >
+              {showHeatmap ? 'Hide heatmap' : 'Show heatmap'}
+            </button>
           </div>
+        </div>
+      )}
 
-          {/* Hour rows */}
-          {Array.from({ length: 24 }, (_, hour) => {
-            // Show labels every 2 hours (12a, 2a, 4a, etc.)
-            const showLabel = hour % 2 === 0;
-            const label = hour === 0 ? '12a' :
-                         hour < 12 ? `${hour}a` :
-                         hour === 12 ? '12p' :
-                         `${hour - 12}p`;
-
-            return (
-              <div key={hour} className="flex items-center" style={{ lineHeight: 0 }}>
-                {/* Hour label */}
+      {showHeatmap && (
+        <div className="flex gap-6">
+          {/* Heatmap grid: X=days, Y=hours */}
+          <div className="flex-1 overflow-x-auto">
+          <div className="inline-block">
+            {/* Month labels at top */}
+            <div className="relative" style={{ marginLeft: '48px', height: '20px', marginBottom: '2px' }}>
+              {monthPositions.map(({ month, index }) => (
                 <div
-                  className="text-[10px] pr-2 text-right"
+                  key={index}
+                  className="absolute text-[11px] font-bold"
                   style={{
-                    width: '48px',
-                    color: designSystem.colors.text.secondary
+                    left: `${index * cellWidth}px`,
+                    color: designSystem.colors.text.secondary,
+                    writingMode: 'vertical-rl',
+                    textOrientation: 'mixed'
                   }}
                 >
-                  {showLabel ? label : ''}
+                  {month}
+                </div>
+              ))}
+            </div>
+
+            {/* Hour rows */}
+            {Array.from({ length: 24 }, (_, hour) => {
+              // Show labels every 2 hours (12a, 2a, 4a, etc.)
+              const showLabel = hour % 2 === 0;
+              const label = hour === 0 ? '12a' :
+                           hour < 12 ? `${hour}a` :
+                           hour === 12 ? '12p' :
+                           `${hour - 12}p`;
+
+              return (
+                <div key={hour} className="flex items-center" style={{ lineHeight: 0 }}>
+                  {/* Hour label */}
+                  <div
+                    className="text-[10px] pr-2 text-right"
+                    style={{
+                      width: '48px',
+                      color: designSystem.colors.text.secondary
+                    }}
+                  >
+                    {showLabel ? label : ''}
+                  </div>
+
+                {/* Day columns */}
+                <div className="flex">
+                  {dateArray.map((date, idx) => {
+                    const hourData = dataGrid.get(date);
+                    const rate = hourData?.get(hour);
+                    const color = getColor(rate);
+
+                    // Debug: Log first date's data for hour 12
+                    if (hour === 12 && idx === 0) {
+                      console.log('Sample cell - date:', date, 'hour:', hour, 'rate:', rate, 'color:', color);
+                      console.log('hourData for this date:', hourData);
+                    }
+
+                    return (
+                      <div
+                        key={date}
+                        className="cursor-pointer"
+                        style={{
+                          width: `${cellWidth}px`,
+                          height: '8px',
+                          backgroundColor: color,
+                          display: 'block',
+                          lineHeight: 0
+                        }}
+                        onClick={() => onDateClick?.(date)}
+                        onMouseEnter={(e) => {
+                          if (rate !== undefined) {
+                            setHoveredCell({ date, hour, rate });
+                            setMousePosition({ x: e.clientX, y: e.clientY });
+                          }
+                        }}
+                        onMouseMove={(e) => {
+                          if (rate !== undefined) {
+                            setMousePosition({ x: e.clientX, y: e.clientY });
+                          }
+                        }}
+                        onMouseLeave={() => setHoveredCell(null)}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+              );
+            })}
+          </div>
+          </div>
+
+          {/* Vertical Legend */}
+          <div className="flex-shrink-0 flex items-center" style={{ width: '100px' }}>
+            <div className="flex flex-col" style={{ height: '200px', width: '100%' }}>
+              <div className="text-xs font-semibold mb-2" style={{ color: designSystem.colors.text.primary }}>
+                Rate (¢/kWh)
+              </div>
+
+              {/* Legend: gradient bar with rate labels */}
+              <div className="flex gap-3 flex-1">
+                {/* Continuous gradient bar showing color scale */}
+                <div className="relative rounded overflow-hidden" style={{ width: '20px', minHeight: '100%' }}>
+                  {/* Render each color stop as a segment */}
+                  {legendStops.map((stop, idx) => {
+                    if (idx === legendStops.length - 1) return null; // Skip last one
+                    const nextStop = legendStops[idx + 1];
+                    const height = (1 / (legendStops.length - 1)) * 100;
+
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          position: 'absolute',
+                          left: 0,
+                          right: 0,
+                          bottom: `${(idx / (legendStops.length - 1)) * 100}%`,
+                          height: `${height}%`,
+                          background: `linear-gradient(to top, ${stop.color}, ${nextStop.color})`
+                        }}
+                      />
+                    );
+                  })}
                 </div>
 
-              {/* Day columns */}
-              <div className="flex">
-                {dateArray.map((date, idx) => {
-                  const hourData = dataGrid.get(date);
-                  const rate = hourData?.get(hour);
-                  const color = getColor(rate);
+                {/* Rate labels positioned along the gradient */}
+                <div className="relative flex-1">
+                  {legendStops.map((stop, idx) => {
+                    // Only show some labels to avoid crowding
+                    const showLabel = idx % 2 === 0 || idx === legendStops.length - 1;
 
-                  // Debug: Log first date's data for hour 12
-                  if (hour === 12 && idx === 0) {
-                    console.log('Sample cell - date:', date, 'hour:', hour, 'rate:', rate, 'color:', color);
-                    console.log('hourData for this date:', hourData);
-                  }
-
-                  return (
-                    <div
-                      key={date}
-                      className="cursor-pointer"
-                      style={{
-                        width: `${cellWidth}px`,
-                        height: '8px',
-                        backgroundColor: color,
-                        display: 'block',
-                        lineHeight: 0
-                      }}
-                      onClick={() => onDateClick?.(date)}
-                      onMouseEnter={(e) => {
-                        if (rate !== undefined) {
-                          setHoveredCell({ date, hour, rate });
-                          setMousePosition({ x: e.clientX, y: e.clientY });
-                        }
-                      }}
-                      onMouseMove={(e) => {
-                        if (rate !== undefined) {
-                          setMousePosition({ x: e.clientX, y: e.clientY });
-                        }
-                      }}
-                      onMouseLeave={() => setHoveredCell(null)}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-            );
-          })}
-        </div>
-        </div>
-
-        {/* Vertical Legend */}
-        <div className="flex-shrink-0 flex items-center" style={{ width: '100px' }}>
-          <div className="flex flex-col" style={{ height: '200px', width: '100%' }}>
-            <div className="text-xs font-semibold mb-2" style={{ color: designSystem.colors.text.primary }}>
-              Rate (¢/kWh)
-            </div>
-
-            {/* Legend: gradient bar with rate labels */}
-            <div className="flex gap-3 flex-1">
-              {/* Continuous gradient bar showing color scale */}
-              <div className="relative rounded overflow-hidden" style={{ width: '20px', minHeight: '100%' }}>
-                {/* Render each color stop as a segment */}
-                {legendStops.map((stop, idx) => {
-                  if (idx === legendStops.length - 1) return null; // Skip last one
-                  const nextStop = legendStops[idx + 1];
-                  const height = (1 / (legendStops.length - 1)) * 100;
-
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        bottom: `${(idx / (legendStops.length - 1)) * 100}%`,
-                        height: `${height}%`,
-                        background: `linear-gradient(to top, ${stop.color}, ${nextStop.color})`
-                      }}
-                    />
-                  );
-                })}
-              </div>
-
-              {/* Rate labels positioned along the gradient */}
-              <div className="relative flex-1">
-                {legendStops.map((stop, idx) => {
-                  // Only show some labels to avoid crowding
-                  const showLabel = idx % 2 === 0 || idx === legendStops.length - 1;
-
-                  return showLabel ? (
-                    <div
-                      key={idx}
-                      className="absolute"
-                      style={{
-                        bottom: `${(idx / (legendStops.length - 1)) * 100}%`,
-                        transform: 'translateY(50%)',
-                        left: 0
-                      }}
-                    >
-                      <span
-                        className="text-[10px] whitespace-nowrap"
-                        style={{ color: designSystem.colors.text.secondary }}
+                    return showLabel ? (
+                      <div
+                        key={idx}
+                        className="absolute"
+                        style={{
+                          bottom: `${(idx / (legendStops.length - 1)) * 100}%`,
+                          transform: 'translateY(50%)',
+                          left: 0
+                        }}
                       >
-                        {toCents(stop.rate).toFixed(1)}¢
-                      </span>
-                    </div>
-                  ) : null;
-                })}
+                        <span
+                          className="text-[10px] whitespace-nowrap"
+                          style={{ color: designSystem.colors.text.secondary }}
+                        >
+                          {toCents(stop.rate).toFixed(1)}¢
+                        </span>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Hover Tooltip */}
       {hoveredCell && (
