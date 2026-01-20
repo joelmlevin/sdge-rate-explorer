@@ -112,9 +112,10 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
     };
 
     const observer = new ResizeObserver(entries => {
-      entries.forEach(entry => {
+      const entry = entries[0];
+      if (entry) {
         updateCellWidth(entry.contentRect.width);
-      });
+      }
     });
 
     observer.observe(containerRef.current);
@@ -123,6 +124,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
     return () => observer.disconnect();
   }, [dateArray.length]);
 
+  // Show heatmap unless in compact view with explicit hide preference.
   const shouldShowHeatmap = !isCompactView || compactViewPreference === 'show';
 
   // Color scale function with cubic root transformation (full range)
@@ -252,42 +254,42 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
                     {showLabel ? label : ''}
                   </div>
 
-                {/* Day columns */}
-                <div className="flex">
-                  {dateArray.map((date) => {
-                    const hourData = dataGrid.get(date);
-                    const rate = hourData?.get(hour);
-                    const color = getColor(rate);
+                  {/* Day columns */}
+                  <div className="flex">
+                    {dateArray.map((date) => {
+                      const hourData = dataGrid.get(date);
+                      const rate = hourData?.get(hour);
+                      const color = getColor(rate);
 
-                    return (
-                      <div
-                        key={date}
-                        className="cursor-pointer"
-                        style={{
-                          width: `${cellWidth}px`,
-                          height: '8px',
-                          backgroundColor: color,
-                          display: 'block',
-                          lineHeight: 0
-                        }}
-                        onClick={() => onDateClick?.(date)}
-                        onMouseEnter={(e) => {
-                          if (rate !== undefined) {
-                            setHoveredCell({ date, hour, rate });
-                            setMousePosition({ x: e.clientX, y: e.clientY });
-                          }
-                        }}
-                        onMouseMove={(e) => {
-                          if (rate !== undefined) {
-                            setMousePosition({ x: e.clientX, y: e.clientY });
-                          }
-                        }}
-                        onMouseLeave={() => setHoveredCell(null)}
-                      />
-                    );
-                  })}
+                      return (
+                        <div
+                          key={date}
+                          className="cursor-pointer"
+                          style={{
+                            width: `${cellWidth}px`,
+                            height: '8px',
+                            backgroundColor: color,
+                            display: 'block',
+                            lineHeight: 0
+                          }}
+                          onClick={() => onDateClick?.(date)}
+                          onMouseEnter={(e) => {
+                            if (rate !== undefined) {
+                              setHoveredCell({ date, hour, rate });
+                              setMousePosition({ x: e.clientX, y: e.clientY });
+                            }
+                          }}
+                          onMouseMove={(e) => {
+                            if (rate !== undefined) {
+                              setMousePosition({ x: e.clientX, y: e.clientY });
+                            }
+                          }}
+                          onMouseLeave={() => setHoveredCell(null)}
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
               );
             })}
           </div>
