@@ -4,7 +4,7 @@
  * Y-axis: Hours of day (24 rows)
  */
 
-import { useMemo, useRef, useEffect, useState } from 'react';
+import { useMemo, useRef, useEffect, useState, useCallback } from 'react';
 import { format } from 'date-fns';
 import type { RateEntry } from '../../types';
 import { toCents } from '../../utils/rateUtils';
@@ -18,6 +18,11 @@ interface YearHeatmapProps {
 }
 
 export default function YearHeatmap({ rates, year, design = 'minimal', onDateClick }: YearHeatmapProps) {
+  const MOBILE_BREAKPOINT = 640;
+  const MOBILE_HOUR_LABEL_WIDTH = 32;
+  const DESKTOP_HOUR_LABEL_WIDTH = 48;
+  const MOBILE_PADDING = 16;
+  const DESKTOP_PADDING = 32;
   const designSystem = designs[design];
   const containerRef = useRef<HTMLDivElement>(null);
   const [cellWidth, setCellWidth] = useState(2);
@@ -100,8 +105,10 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
     }
 
     const updateCellWidth = (containerWidth: number) => {
-      const nextHourLabelWidth = containerWidth < 640 ? 32 : 48;
-      const nextPadding = containerWidth < 640 ? 16 : 32;
+      const nextHourLabelWidth = containerWidth < MOBILE_BREAKPOINT
+        ? MOBILE_HOUR_LABEL_WIDTH
+        : DESKTOP_HOUR_LABEL_WIDTH;
+      const nextPadding = containerWidth < MOBILE_BREAKPOINT ? MOBILE_PADDING : DESKTOP_PADDING;
       const availableWidth = containerWidth - nextHourLabelWidth - nextPadding;
       const calculatedWidth = Math.max(1, Math.floor(availableWidth / dateArray.length));
       const nextWidth = Math.min(calculatedWidth, 4);
@@ -113,7 +120,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
 
     const observer = new ResizeObserver(entries => {
       const entry = entries[0];
-      if (entry?.contentRect?.width) {
+      if (entry && typeof entry.contentRect?.width === 'number') {
         updateCellWidth(entry.contentRect.width);
       }
     });
@@ -129,7 +136,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
 
   // Color scale function with cubic root transformation (full range)
   // Cube root provides good perceptual discrimination across the full range
-  const getColor = (rate: number | undefined): string => {
+  const getColor = useCallback((rate: number | undefined): string => {
     if (rate === undefined) return '#e5e7eb'; // Gray for missing data
 
     // Clamp to valid range
@@ -147,7 +154,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
       const t = (normalized - 0.5) * 2;
       return interpolateColor('#14B8A6', '#EAB308', t);
     }
-  };
+  }, [minRate, maxRate]);
 
   // Generate legend color stops for display using cubic root transformation
   const legendStops = useMemo(() => {
