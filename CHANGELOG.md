@@ -5,6 +5,67 @@ All notable changes to the SDG&E Rate Explorer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-01-19
+
+### Added
+- **Mobile Responsiveness**: Complete mobile optimization for all screen sizes
+  - Responsive breakpoints: 320px (iPhone SE), 375px (iPhone 12/13/14), 414px (Max models), 768px (iPad)
+  - Touch-optimized interface with 44px minimum touch targets (WCAG 2.5.5 compliant)
+  - Responsive typography scaling across all components
+  - Mobile testing documentation in MOBILE_TESTING.md
+
+### Changed
+- **Navigation**: Fully responsive header
+  - Title scales from text-base → text-lg → text-xl
+  - Contract year dropdown adapts to screen width (calc(100vw-2rem) on mobile)
+  - Improved space management with flexible layout
+
+- **Year Heatmap**: Major mobile optimization
+  - Legend repositioned above heatmap on mobile (flex-col md:flex-row)
+  - Legend switches to horizontal layout on mobile for better space usage
+  - Hour label column reduced from 48px → 32px for more heatmap space
+  - Responsive padding (p-4 sm:p-6 md:p-8) and text sizing
+  - Cell width calculation optimized for mobile screens
+
+- **Week View**: Fixed grid overflow on mobile
+  - Grid columns changed from fixed 550px minimum → responsive 'minmax(40px, 60px) repeat(7, 1fr)'
+  - Now fits on 320px screens without horizontal overflow
+  - Responsive text sizing for day headers, hour labels, and cell content
+  - Touch targets meet 44px minimum height standard
+
+- **Month View**: Responsive calendar layout
+  - Header padding: px-4 sm:px-8, py-4 sm:py-6
+  - Title scales: text-2xl sm:text-3xl
+  - Calendar grid automatically adapts to container width
+
+- **Day View**: Improved mobile chart layout
+  - Stats section stacks vertically on mobile (flex-col sm:flex-row)
+  - Responsive gaps (gap-4 sm:gap-8) and padding (p-4 sm:p-8)
+  - Title scales: text-2xl sm:text-3xl
+
+- **Year View**: Responsive month grid
+  - Grid columns: 2 on mobile → 3 on tablet → 4 on desktop
+  - Before: Fixed 4 columns requiring 800px minimum
+  - After: Adapts to screen width starting at 320px
+
+- **Calendar Controls**: Mobile-optimized navigation
+  - View mode buttons stack on mobile (flex-col sm:flex-row)
+  - Reduced button padding on mobile (px-2 sm:px-4)
+  - All interactive elements meet 44px minimum touch target size
+
+### Fixed
+- **Horizontal Overflow**: Eliminated all horizontal scrolling issues on mobile viewports
+- **Touch Targets**: All buttons, links, and interactive elements now meet 44px minimum size
+- **Text Readability**: Responsive font sizing ensures legibility at all screen sizes
+- **Layout Breaks**: Fixed grid and flex layouts that broke on narrow screens
+
+### Technical
+- Added comprehensive mobile testing guide (MOBILE_TESTING.md)
+- Implemented responsive Tailwind classes throughout (sm:, md:, lg: breakpoints)
+- Optimized touch event handling for mobile browsers
+- No JavaScript changes - pure CSS/Tailwind responsive improvements
+- Bundle size unchanged (no additional code for mobile)
+
 ## [2.1.1] - 2026-01-19
 
 ### Changed

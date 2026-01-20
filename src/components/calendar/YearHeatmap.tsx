@@ -92,8 +92,9 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
     const updateCellWidth = () => {
       if (containerRef.current && dateArray.length > 0) {
         const containerWidth = containerRef.current.offsetWidth;
-        const hourLabelWidth = 48;
-        const availableWidth = containerWidth - hourLabelWidth - 32; // 32px for padding
+        const hourLabelWidth = 32; // Reduced from 48px for mobile
+        const padding = window.innerWidth < 640 ? 16 : 32; // Responsive padding
+        const availableWidth = containerWidth - hourLabelWidth - padding;
         const calculatedWidth = Math.max(1, Math.floor(availableWidth / dateArray.length));
         setCellWidth(Math.min(calculatedWidth, 4)); // Cap at 4px max for visual consistency
       }
@@ -178,15 +179,15 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
   }, [dateArray]);
 
   return (
-    <div className="p-8 space-y-4" ref={containerRef}>
-      <div className="mb-4">
-        <h3 className="text-2xl font-bold" style={{ color: designSystem.colors.text.primary }}>
+    <div className="p-4 sm:p-6 md:p-8 space-y-4" ref={containerRef}>
+      <div className="mb-2 sm:mb-4">
+        <h3 className="text-xl sm:text-2xl font-bold" style={{ color: designSystem.colors.text.primary }}>
           Hourly Rate Heatmap
         </h3>
       </div>
 
       {/* Heatmap grid and legend container */}
-      <div className="flex gap-6">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6">
         {/* Heatmap grid: X=days, Y=hours */}
         <div className="flex-1 overflow-x-auto">
         <div className="inline-block">
@@ -221,9 +222,9 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
               <div key={hour} className="flex items-center" style={{ lineHeight: 0 }}>
                 {/* Hour label */}
                 <div
-                  className="text-[10px] pr-2 text-right"
+                  className="text-[9px] sm:text-[10px] pr-1 sm:pr-2 text-right"
                   style={{
-                    width: '48px',
+                    width: '32px',
                     color: designSystem.colors.text.secondary
                   }}
                 >
@@ -278,16 +279,16 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
         </div>
 
         {/* Vertical Legend */}
-        <div className="flex-shrink-0 flex items-center" style={{ width: '100px' }}>
-          <div className="flex flex-col" style={{ height: '200px', width: '100%' }}>
-            <div className="text-xs font-semibold mb-2" style={{ color: designSystem.colors.text.primary }}>
+        <div className="flex-shrink-0 flex justify-center md:items-center order-first md:order-last">
+          <div className="flex flex-row md:flex-col gap-3 items-center md:items-start" style={{ height: 'auto', minHeight: '120px', maxHeight: '200px', width: '100%', maxWidth: '300px' }}>
+            <div className="text-xs font-semibold mb-0 md:mb-2" style={{ color: designSystem.colors.text.primary }}>
               Rate (¢/kWh)
             </div>
 
             {/* Legend: gradient bar with rate labels */}
-            <div className="flex gap-3 flex-1">
+            <div className="flex md:flex-row flex-col gap-3 flex-1">
               {/* Continuous gradient bar showing color scale */}
-              <div className="relative rounded overflow-hidden" style={{ width: '20px', minHeight: '100%' }}>
+              <div className="relative rounded overflow-hidden" style={{ height: '20px', width: '100%', minWidth: '120px', maxWidth: '200px' }} className="md:!w-5 md:!h-auto md:min-h-full">
                 {/* Render each color stop as a segment */}
                 {legendStops.map((stop, idx) => {
                   if (idx === legendStops.length - 1) return null; // Skip last one

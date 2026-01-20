@@ -33,16 +33,16 @@ export default function ContractYearSelector({
         onClick={() => !isLoading && setIsOpen(!isOpen)}
         disabled={isLoading}
         className={`
-          flex items-center gap-3 px-5 py-3 rounded-xl border-2 shadow-sm
+          flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl border-2 shadow-sm min-h-[44px]
           ${isLoading ? 'bg-gray-100 border-gray-300 cursor-not-allowed' : 'bg-white border-blue-400 hover:border-blue-600 hover:shadow-md'}
           transition-all duration-200
         `}
       >
         <div className="flex flex-col items-start">
-          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+          <span className="text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wide">
             Contract Year
           </span>
-          <span className="text-base font-bold text-gray-900">
+          <span className="text-sm sm:text-base font-bold text-gray-900">
             {CONTRACT_YEAR_INFO[currentYear].label}
           </span>
         </div>
@@ -68,7 +68,7 @@ export default function ContractYearSelector({
           />
 
           {/* Menu */}
-          <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border-2 border-blue-200 z-20">
+          <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-md bg-white rounded-xl shadow-2xl border-2 border-blue-200 z-20">
             <div className="py-2">
               {AVAILABLE_CONTRACT_YEARS.map((year) => {
                 const info = CONTRACT_YEAR_INFO[year];
@@ -79,7 +79,7 @@ export default function ContractYearSelector({
                     key={year}
                     onClick={() => handleYearClick(year)}
                     className={`
-                      w-full px-4 py-3 text-left transition-colors duration-150
+                      w-full px-4 py-3 text-left transition-colors duration-150 min-h-[44px]
                       ${isCurrent ? 'bg-blue-50' : 'hover:bg-gray-50'}
                     `}
                   >

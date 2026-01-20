@@ -190,11 +190,11 @@ export default function CalendarExplorerV2() {
 
   return (
     <div className="flex-1" style={{ backgroundColor: designSystem.colors.background }}>
-      <div className="max-w-[1600px] mx-auto px-6 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="mb-8">
           {/* Controls row */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
             {/* View mode selector */}
             <div className="flex gap-2">
               {(['day', 'week', 'month', 'year'] as ViewMode[]).map((mode) => {
@@ -212,11 +212,12 @@ export default function CalendarExplorerV2() {
                   <button
                     key={mode}
                     onClick={handleViewModeClick}
-                    className={`px-4 py-2 ${designSystem.borders.radius} text-sm font-medium transition-all`}
+                    className={`px-2 sm:px-4 py-2 ${designSystem.borders.radius} text-sm font-medium transition-all`}
                     style={{
                       backgroundColor: viewMode === mode ? designSystem.colors.accent : designSystem.colors.surface,
                       color: viewMode === mode ? '#FFFFFF' : designSystem.colors.text.primary,
                       border: `${designSystem.borders.width} solid ${viewMode === mode ? designSystem.colors.accent : designSystem.colors.border}`,
+                      minHeight: '44px',
                     }}
                   >
                     <span style={{ textDecoration: 'underline' }}>{label.charAt(0)}</span>{label.slice(1)}
@@ -229,11 +230,12 @@ export default function CalendarExplorerV2() {
             <div className="flex items-center gap-3">
               <button
                 onClick={goToPrevious}
-                className={`px-4 py-2 ${designSystem.borders.radius} text-sm font-medium transition-all hover:opacity-80`}
+                className={`px-3 sm:px-4 py-2 ${designSystem.borders.radius} text-sm font-medium transition-all hover:opacity-80`}
                 style={{
                   backgroundColor: designSystem.colors.surface,
                   color: designSystem.colors.text.primary,
                   border: `${designSystem.borders.width} solid ${designSystem.colors.border}`,
+                  minHeight: '44px',
                 }}
               >
                 ← Previous
@@ -241,11 +243,12 @@ export default function CalendarExplorerV2() {
 
               <button
                 onClick={goToToday}
-                className={`px-4 py-2 ${designSystem.borders.radius} text-sm font-semibold transition-all`}
+                className={`px-3 sm:px-4 py-2 ${designSystem.borders.radius} text-sm font-semibold transition-all`}
                 style={{
                   backgroundColor: designSystem.colors.accent,
                   color: '#FFFFFF',
                   border: `${designSystem.borders.width} solid ${designSystem.colors.accent}`,
+                  minHeight: '44px',
                 }}
               >
                 Today
@@ -253,11 +256,12 @@ export default function CalendarExplorerV2() {
 
               <button
                 onClick={goToNext}
-                className={`px-4 py-2 ${designSystem.borders.radius} text-sm font-medium transition-all hover:opacity-80`}
+                className={`px-3 sm:px-4 py-2 ${designSystem.borders.radius} text-sm font-medium transition-all hover:opacity-80`}
                 style={{
                   backgroundColor: designSystem.colors.surface,
                   color: designSystem.colors.text.primary,
                   border: `${designSystem.borders.width} solid ${designSystem.colors.border}`,
+                  minHeight: '44px',
                 }}
               >
                 Next →

@@ -42,9 +42,9 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
     <div className={`${designSystem.borders.radius} overflow-hidden shadow-sm`}
          style={{ backgroundColor: designSystem.colors.surface }}>
       {/* Header */}
-      <div className="px-8 py-6 border-b" style={{ borderColor: designSystem.colors.border }}>
+      <div className="px-4 sm:px-8 py-4 sm:py-6 border-b" style={{ borderColor: designSystem.colors.border }}>
         <div className="flex items-center gap-3">
-          <h2 className="text-3xl font-bold" style={{ color: designSystem.colors.text.primary }}>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold" style={{ color: designSystem.colors.text.primary }}>
             Week of {format(weekStart, 'MMM d')} - {format(weekEnd, 'MMM d, yyyy')}
           </h2>
           {datePickerComponent}
@@ -53,7 +53,7 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
 
       {/* Grid container - 8 columns (1 for time + 7 for days) */}
       <div>
-        <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, minmax(70px, 1fr))' }}>
+        <div className="grid" style={{ gridTemplateColumns: 'minmax(40px, 60px) repeat(7, 1fr)' }}>
 
           {/* Day headers row */}
           <div style={{
@@ -64,16 +64,17 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
           {weekDays.map(day => (
             <div
               key={`header-${day.date}`}
-              className="text-center py-4 cursor-pointer hover:opacity-80 transition-opacity"
+              className="text-center py-3 sm:py-4 cursor-pointer hover:opacity-80 transition-opacity"
               style={{
                 backgroundColor: day.isWeekend ? designSystem.colors.weekend.bg : designSystem.colors.background,
                 borderLeft: `1px solid ${designSystem.colors.borderLight}`,
                 borderBottom: `1px solid ${designSystem.colors.border}`,
                 color: day.isWeekend ? designSystem.colors.weekend.text : designSystem.colors.text.primary,
+                minHeight: '44px',
               }}
               onClick={() => onDayClick?.(day.dateObj)}
             >
-              <div className="font-bold text-base">{format(day.dateObj, 'EEE')}</div>
+              <div className="font-bold text-sm sm:text-base">{format(day.dateObj, 'EEE')}</div>
               <div className="text-xs mt-1" style={{ color: designSystem.colors.text.secondary }}>
                 {format(day.dateObj, 'MMM d')}
               </div>
@@ -86,13 +87,14 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
               {/* Hour label */}
               <div
                 key={`hour-${hour}`}
-                className="flex items-center justify-center text-xs font-medium"
+                className="flex items-center justify-center text-[10px] sm:text-xs font-medium"
                 style={{
                   backgroundColor: designSystem.colors.background,
                   borderRight: `1px solid ${designSystem.colors.borderLight}`,
                   borderBottom: hour === 23 ? 'none' : `1px solid ${designSystem.colors.borderLight}`,
                   color: designSystem.colors.text.secondary,
                   height: '36px',
+                  minHeight: '36px',
                 }}
               >
                 {formatHour(hour)}
@@ -132,16 +134,17 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
                 return (
                   <div
                     key={`${day.date}-${hour}`}
-                    className="flex items-center justify-center text-sm font-bold cursor-pointer hover:ring-2 hover:ring-inset hover:ring-blue-500 transition-all group relative"
+                    className="flex items-center justify-center text-xs sm:text-sm font-bold cursor-pointer hover:ring-2 hover:ring-inset hover:ring-blue-500 transition-all group relative"
                     style={{
                       backgroundColor: bgColor,
                       borderLeft: `1px solid ${designSystem.colors.borderLight}`,
                       borderBottom: hour === 23 ? 'none' : `1px solid ${designSystem.colors.borderLight}`,
                       height: '36px',
+                      minHeight: '36px',
                       color: textColor,
                     }}
                   >
-                    <span>{toCents(hourRate.totalRate).toFixed(1)}¢</span>
+                    <span className="text-[10px] sm:text-sm">{toCents(hourRate.totalRate).toFixed(1)}¢</span>
 
                     {/* Hover tooltip - with opaque white background for readability */}
                     <div className="absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
@@ -165,7 +168,7 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
       </div>
 
       {/* Legend */}
-      <div className="px-8 py-4 border-t flex items-center justify-between text-sm"
+      <div className="px-4 sm:px-8 py-4 border-t flex items-center justify-between text-xs sm:text-sm"
            style={{
              borderColor: designSystem.colors.border,
              backgroundColor: designSystem.colors.background,
@@ -174,7 +177,7 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
         <div className="font-semibold">
           Low: {toCents(minRate).toFixed(2)}¢/kWh
         </div>
-        <div className="flex-1 mx-6 h-4 rounded-full" style={{
+        <div className="flex-1 mx-3 sm:mx-6 h-3 sm:h-4 rounded-full" style={{
           background: `linear-gradient(to right, ${getColorForRate(0, 'viridis')}, ${getColorForRate(1, 'viridis')})`
         }}></div>
         <div className="font-semibold">

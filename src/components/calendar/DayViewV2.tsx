@@ -40,14 +40,14 @@ export default function DayViewV2({ rates, date, design = 'minimal', datePickerC
     <div className={`${designSystem.borders.radius} overflow-hidden shadow-sm`}
          style={{ backgroundColor: designSystem.colors.surface }}>
       {/* Header */}
-      <div className="px-8 py-6 border-b" style={{ borderColor: designSystem.colors.border }}>
+      <div className="px-4 sm:px-8 py-4 sm:py-6 border-b" style={{ borderColor: designSystem.colors.border }}>
         <div className="flex items-center gap-3 mb-3">
-          <h2 className="text-3xl font-bold" style={{ color: designSystem.colors.text.primary }}>
+          <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: designSystem.colors.text.primary }}>
             {format(date, 'EEEE, MMMM d, yyyy')}
           </h2>
           {datePickerComponent}
         </div>
-        <div className="flex gap-8 text-sm">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm">
           <div>
             <span style={{ color: designSystem.colors.text.secondary }}>Average: </span>
             <span className="font-bold tabular-nums" style={{ color: designSystem.colors.text.primary }}>
@@ -70,7 +70,7 @@ export default function DayViewV2({ rates, date, design = 'minimal', datePickerC
       </div>
 
       {/* Bar chart */}
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <div className="flex gap-4">
           {/* Y-axis labels and ticks */}
           <div className="flex flex-col justify-between" style={{ height: '320px', paddingBottom: '24px' }}>

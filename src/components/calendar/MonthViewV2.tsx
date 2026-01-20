@@ -33,12 +33,12 @@ export default function MonthViewV2({ rates, year, month, onDayClick, design = '
     <div className={`${designSystem.borders.radius} overflow-hidden shadow-sm`}
          style={{ backgroundColor: designSystem.colors.surface }}>
       {/* Header */}
-      <div className="px-8 py-6 border-b" style={{
+      <div className="px-4 sm:px-8 py-4 sm:py-6 border-b" style={{
         borderColor: designSystem.colors.border,
         backgroundColor: designSystem.colors.surface
       }}>
         <div className="flex items-center gap-3">
-          <h2 className={`text-3xl font-bold`} style={{ color: designSystem.colors.text.primary }}>
+          <h2 className={`text-2xl sm:text-3xl font-bold`} style={{ color: designSystem.colors.text.primary }}>
             {format(new Date(year, month - 1), 'MMMM yyyy')}
           </h2>
           {datePickerComponent}

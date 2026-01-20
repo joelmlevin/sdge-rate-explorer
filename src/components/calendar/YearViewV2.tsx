@@ -39,15 +39,15 @@ export default function YearViewV2({ rates, year, onMonthClick, onDateClick, des
     <div className={`${designSystem.borders.radius} overflow-hidden shadow-sm`}
          style={{ backgroundColor: designSystem.colors.surface }}>
       {/* Header */}
-      <div className="px-8 py-6 border-b" style={{ borderColor: designSystem.colors.border }}>
+      <div className="px-4 sm:px-8 py-4 sm:py-6 border-b" style={{ borderColor: designSystem.colors.border }}>
         <div className="flex items-center gap-3">
-          <h2 className="text-4xl font-bold" style={{ color: designSystem.colors.text.primary }}>{year}</h2>
+          <h2 className="text-2xl sm:text-4xl font-bold" style={{ color: designSystem.colors.text.primary }}>{year}</h2>
           {datePickerComponent}
         </div>
       </div>
 
-      {/* Month grid - fixed 4 columns × 3 rows */}
-      <div className="p-8 grid grid-cols-4 gap-4">
+      {/* Month grid - responsive columns */}
+      <div className="p-4 sm:p-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {monthSummaries.map(month => (
           <MonthCard
             key={month.month}
