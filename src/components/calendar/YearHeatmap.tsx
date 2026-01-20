@@ -29,16 +29,11 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
 
   // Organize data: Map<date, Map<hour, rate>>
   const { dateArray, dataGrid } = useMemo(() => {
-    console.log('YearHeatmap: Processing rates for year', year);
-    console.log('Total rates:', rates.length);
-
     // Filter rates for this year
     const filtered = rates.filter(r => {
       const rateDate = new Date(r.date + 'T00:00:00');
       return rateDate.getFullYear() === year;
     });
-
-    console.log('Filtered rates for year:', filtered.length);
 
     // Group by date and hour, summing generation + delivery
     const byDate = new Map<string, Map<number, number>>();
@@ -54,8 +49,6 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
 
     // Get sorted array of dates
     const dates = Array.from(byDate.keys()).sort();
-    console.log('Unique dates:', dates.length);
-    console.log('First date:', dates[0], 'Last date:', dates[dates.length - 1]);
 
     return {
       dateArray: dates,
@@ -96,9 +89,6 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
       minRate: allRates[0],
       maxRate: allRates[allRates.length - 1]
     };
-
-    console.log('Color scale:', result);
-    console.log('Sample rates:', allRates.slice(0, 10));
 
     return result;
   }, [dataGrid]);
@@ -264,16 +254,10 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
 
                 {/* Day columns */}
                 <div className="flex">
-                  {dateArray.map((date, idx) => {
+                  {dateArray.map((date) => {
                     const hourData = dataGrid.get(date);
                     const rate = hourData?.get(hour);
                     const color = getColor(rate);
-
-                    // Debug: Log first date's data for hour 12
-                    if (hour === 12 && idx === 0) {
-                      console.log('Sample cell - date:', date, 'hour:', hour, 'rate:', rate, 'color:', color);
-                      console.log('hourData for this date:', hourData);
-                    }
 
                     return (
                       <div
