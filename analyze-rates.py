@@ -2,7 +2,6 @@
 
 """
 Analyze 2026 NBT25 rate distribution
-Focus on 6¢-12¢ range to inform better color gradient mapping
 """
 
 import json
