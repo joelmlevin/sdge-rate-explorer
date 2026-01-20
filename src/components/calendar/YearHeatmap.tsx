@@ -22,6 +22,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
   const containerRef = useRef<HTMLDivElement>(null);
   const [cellWidth, setCellWidth] = useState(2);
   const [isCompactView, setIsCompactView] = useState(false);
+  const [hourLabelWidth, setHourLabelWidth] = useState(48);
   const [hoveredCell, setHoveredCell] = useState<{ date: string; hour: number; rate: number } | null>(null);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [compactViewPreference, setCompactViewPreference] = useState<'show' | 'hide' | null>(null);
@@ -109,14 +110,15 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
     }
 
     const updateCellWidth = (containerWidth: number) => {
-      const hourLabelWidth = window.innerWidth < 640 ? 32 : 48;
-      const padding = window.innerWidth < 640 ? 16 : 32;
-      const availableWidth = containerWidth - hourLabelWidth - padding;
+      const nextHourLabelWidth = containerWidth < 640 ? 32 : 48;
+      const nextPadding = containerWidth < 640 ? 16 : 32;
+      const availableWidth = containerWidth - nextHourLabelWidth - nextPadding;
       const calculatedWidth = Math.max(1, Math.floor(availableWidth / dateArray.length));
       const nextWidth = Math.min(calculatedWidth, 4);
       setCellWidth(nextWidth);
       const nextIsCompact = nextWidth < 2;
       setIsCompactView(nextIsCompact);
+      setHourLabelWidth(nextHourLabelWidth);
     };
 
     const observer = new ResizeObserver(entries => {
@@ -221,7 +223,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
           <div className="flex-1 overflow-x-auto">
           <div className="inline-block">
             {/* Month labels at top */}
-            <div className="relative" style={{ marginLeft: '48px', height: '20px', marginBottom: '2px' }}>
+            <div className="relative" style={{ marginLeft: `${hourLabelWidth}px`, height: '20px', marginBottom: '2px' }}>
               {monthPositions.map(({ month, index }) => (
                 <div
                   key={index}
@@ -253,7 +255,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
                   <div
                     className="text-[10px] pr-2 text-right"
                     style={{
-                      width: '48px',
+                    width: `${hourLabelWidth}px`,
                       color: designSystem.colors.text.secondary
                     }}
                   >
