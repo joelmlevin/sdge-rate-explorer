@@ -133,7 +133,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
     return () => observer.disconnect();
   }, [dateArray.length]);
 
-  const showHeatmap = !isCompactView || compactViewPreference === 'show';
+  const shouldShowHeatmap = !isCompactView || compactViewPreference === 'show';
 
   // Color scale function with cubic root transformation (full range)
   // Cube root provides good perceptual discrimination across the full range
@@ -208,16 +208,16 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
             <p>Heatmap is dense on small screens. Use the monthly summary above for quick scanning.</p>
             <button
               type="button"
-              onClick={() => setCompactViewPreference(showHeatmap ? 'hide' : 'show')}
+              onClick={() => setCompactViewPreference(shouldShowHeatmap ? 'hide' : 'show')}
               className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-100"
             >
-              {showHeatmap ? 'Hide heatmap' : 'Show heatmap'}
+              {shouldShowHeatmap ? 'Hide heatmap' : 'Show heatmap'}
             </button>
           </div>
         </div>
       )}
 
-      {showHeatmap && (
+      {shouldShowHeatmap && (
         <div className="flex gap-6">
           {/* Heatmap grid: X=days, Y=hours */}
           <div className="flex-1 overflow-x-auto">
@@ -255,7 +255,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
                   <div
                     className="text-[10px] pr-2 text-right"
                     style={{
-                    width: `${hourLabelWidth}px`,
+                      width: `${hourLabelWidth}px`,
                       color: designSystem.colors.text.secondary
                     }}
                   >
