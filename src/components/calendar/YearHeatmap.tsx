@@ -113,7 +113,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
 
     const observer = new ResizeObserver(entries => {
       const entry = entries[0];
-      if (entry) {
+      if (entry?.contentRect?.width) {
         updateCellWidth(entry.contentRect.width);
       }
     });
@@ -197,7 +197,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
       {isCompactView && (
         <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p>Heatmap is dense on small screens. Use the monthly summary above for quick scanning.</p>
+            <p>Heatmap is dense on small screens. Use the monthly summary cards for quick scanning.</p>
             <button
               type="button"
               onClick={() => setCompactViewPreference(shouldShowHeatmap ? 'hide' : 'show')}
