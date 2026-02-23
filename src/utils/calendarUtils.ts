@@ -36,12 +36,12 @@ export function aggregateHourlyRate(rates: RateEntry[]): HourlyRate | null {
   let generationRate = 0;
   let deliveryRate = 0;
 
+  // Each entry already has dedicated generationRate/deliveryRate fields from the
+  // preprocessed JSON format. rateType is hardcoded to 'generation' for all entries
+  // and must not be used to distinguish the two components.
   rates.forEach(rate => {
-    if (rate.rateType === 'generation') {
-      generationRate = rate.rate;
-    } else if (rate.rateType === 'delivery') {
-      deliveryRate = rate.rate;
-    }
+    generationRate += rate.generationRate ?? 0;
+    deliveryRate += rate.deliveryRate ?? 0;
   });
 
   return {
@@ -91,10 +91,9 @@ export function processDayRates(rates: RateEntry[], date: Date): DaySummary | nu
   const maxRate = Math.max(...totalRates);
   const avgRate = totalRates.reduce((sum, r) => sum + r, 0) / totalRates.length;
 
-  // Find best/worst export hours (based on generation rate, higher is better for export)
-  const genRates = hourlyRates.map(h => ({ hour: h.hour, rate: h.generationRate }));
-  const bestHour = genRates.reduce((best, curr) => curr.rate > best.rate ? curr : best);
-  const worstHour = genRates.reduce((worst, curr) => curr.rate < worst.rate ? curr : worst);
+  // Find best/worst export hours based on total rate (generation + delivery)
+  const bestHour = hourlyRates.reduce((best, curr) => curr.totalRate > best.totalRate ? curr : best);
+  const worstHour = hourlyRates.reduce((worst, curr) => curr.totalRate < worst.totalRate ? curr : worst);
 
   const dayOfWeek = date.getDay();
 
