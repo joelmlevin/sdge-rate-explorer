@@ -3,7 +3,7 @@
  * Production-ready with polished UI and UX
  */
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { useRateStore } from '../../store/useRateStore';
 import MonthViewV2 from './MonthViewV2';
 import WeekViewV3 from './WeekViewV3';
@@ -150,6 +150,14 @@ export default function CalendarExplorerV2() {
     // Keep the same view mode - don't change it
   };
 
+  const handleRateTypeKeyDown = (e: ReactKeyboardEvent<HTMLSelectElement>) => {
+    const key = e.key.toLowerCase();
+    if (key === 't' || key === 'g' || key === 'd') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -272,6 +280,7 @@ export default function CalendarExplorerV2() {
             <select
               value={rateComponent}
               onChange={(e) => setRateComponent(e.target.value as RateComponent)}
+              onKeyDown={handleRateTypeKeyDown}
               className={`px-4 py-2 ${designSystem.borders.radius} text-sm font-medium transition-all cursor-pointer`}
               style={{
                 backgroundColor: designSystem.colors.surface,
