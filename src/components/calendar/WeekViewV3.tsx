@@ -3,10 +3,10 @@
  * Ensures perfect column alignment between headers and data rows
  */
 
-import { getWeekDays } from '../../utils/calendarUtils';
+import { getWeekDays, getComponentRate } from '../../utils/calendarUtils';
 import { toCents } from '../../utils/rateUtils';
 import { getColorForRate } from '../../utils/colorScale';
-import type { RateEntry } from '../../types';
+import type { RateEntry, RateComponent } from '../../types';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
 import { designs, type DesignVariant } from '../../styles/designs';
 
@@ -14,11 +14,12 @@ interface WeekViewProps {
   rates: RateEntry[];
   date: Date;
   design?: DesignVariant;
+  rateComponent?: RateComponent;
   onDayClick?: (date: Date) => void;
   datePickerComponent?: React.ReactNode;
 }
 
-export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick, datePickerComponent }: WeekViewProps) {
+export default function WeekViewV3({ rates, date, design = 'minimal', rateComponent = 'total', onDayClick, datePickerComponent }: WeekViewProps) {
   const weekDays = getWeekDays(rates, date);
   const weekStart = startOfWeek(date, { weekStartsOn: 0 });
   const weekEnd = endOfWeek(date, { weekStartsOn: 0 });
@@ -33,8 +34,8 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
     );
   }
 
-  // Calculate global min/max for consistent coloring
-  const allRates = weekDays.flatMap(d => d.hourlyRates.map(h => h.totalRate));
+  // Calculate global min/max for consistent coloring (based on selected component)
+  const allRates = weekDays.flatMap(d => d.hourlyRates.map(h => getComponentRate(h, rateComponent)));
   const minRate = Math.min(...allRates);
   const maxRate = Math.max(...allRates);
 
@@ -116,7 +117,8 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
                   );
                 }
 
-                const normalized = (hourRate.totalRate - minRate) / (maxRate - minRate || 1);
+                const componentRateVal = getComponentRate(hourRate, rateComponent);
+                const normalized = (componentRateVal - minRate) / (maxRate - minRate || 1);
                 const bgColor = getColorForRate(normalized, 'viridis');
 
                 // Calculate luminance to determine text color for readability
@@ -141,7 +143,7 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
                       color: textColor,
                     }}
                   >
-                    <span>{toCents(hourRate.totalRate).toFixed(1)}¢</span>
+                    <span>{toCents(componentRateVal).toFixed(1)}¢</span>
 
                     {/* Hover tooltip - with opaque white background for readability */}
                     <div className="absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
@@ -149,10 +151,11 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
                         <div className="font-bold mb-1" style={{ color: '#000000' }}>
                           {format(day.dateObj, 'EEE, MMM d')} at {formatHour(hour)}
                         </div>
-                        <div className="font-bold text-base" style={{ color: '#000000' }}>{toCents(hourRate.totalRate).toFixed(2)}¢/kWh</div>
+                        <div className="font-bold text-base" style={{ color: '#000000' }}>{toCents(componentRateVal).toFixed(2)}¢/kWh</div>
                         <div className="text-[10px] mt-1.5 pt-1.5 border-t space-y-0.5" style={{ color: '#333333', borderColor: 'rgba(0, 0, 0, 0.2)' }}>
-                          <div>Gen: {toCents(hourRate.generationRate).toFixed(2)}¢</div>
-                          <div>Del: {toCents(hourRate.deliveryRate).toFixed(2)}¢</div>
+                          <div style={{ fontWeight: rateComponent === 'generation' ? 700 : 400 }}>Gen: {toCents(hourRate.generationRate).toFixed(2)}¢</div>
+                          <div style={{ fontWeight: rateComponent === 'delivery' ? 700 : 400 }}>Del: {toCents(hourRate.deliveryRate).toFixed(2)}¢</div>
+                          <div style={{ fontWeight: rateComponent === 'total' ? 700 : 400 }}>Total: {toCents(hourRate.totalRate).toFixed(2)}¢</div>
                         </div>
                       </div>
                     </div>
@@ -180,6 +183,11 @@ export default function WeekViewV3({ rates, date, design = 'minimal', onDayClick
         <div className="font-semibold">
           High: {toCents(maxRate).toFixed(2)}¢/kWh
         </div>
+        {rateComponent !== 'total' && (
+          <div className="ml-4 text-xs px-2 py-1 rounded" style={{ backgroundColor: designSystem.colors.background, color: designSystem.colors.text.secondary }}>
+            {rateComponent === 'generation' ? 'Generation only' : 'Delivery only'}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,9 +3,9 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { getMonthCalendarGrid, type DaySummary } from '../../utils/calendarUtils';
+import { getMonthCalendarGrid, getComponentRate, type DaySummary } from '../../utils/calendarUtils';
 import { toCents } from '../../utils/rateUtils';
-import type { RateEntry } from '../../types';
+import type { RateEntry, RateComponent } from '../../types';
 import { format } from 'date-fns';
 import { designs, type DesignVariant } from '../../styles/designs';
 
@@ -15,10 +15,11 @@ interface MonthViewProps {
   month: number;
   onDayClick?: (date: string) => void;
   design?: DesignVariant;
+  rateComponent?: RateComponent;
   datePickerComponent?: React.ReactNode;
 }
 
-export default function MonthViewV2({ rates, year, month, onDayClick, design = 'minimal', datePickerComponent }: MonthViewProps) {
+export default function MonthViewV2({ rates, year, month, onDayClick, design = 'minimal', rateComponent = 'total', datePickerComponent }: MonthViewProps) {
   const calendarGrid = getMonthCalendarGrid(rates, year, month);
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const designSystem = designs[design];
@@ -74,6 +75,7 @@ export default function MonthViewV2({ rates, year, month, onDayClick, design = '
                   daySummary={day}
                   onClick={day ? () => onDayClick?.(day.date) : undefined}
                   design={design}
+                  rateComponent={rateComponent}
                 />
               ))}
             </div>
@@ -88,9 +90,10 @@ interface DayCellProps {
   daySummary: DaySummary | null;
   onClick?: () => void;
   design: DesignVariant;
+  rateComponent: RateComponent;
 }
 
-function DayCell({ daySummary, onClick, design }: DayCellProps) {
+function DayCell({ daySummary, onClick, design, rateComponent }: DayCellProps) {
   const designSystem = designs[design];
   const [showBarChart, setShowBarChart] = useState(false);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -132,7 +135,7 @@ function DayCell({ daySummary, onClick, design }: DayCellProps) {
     );
   }
 
-  const { dateObj, minRate, maxRate, bestExportHour, isWeekend, hourlyRates } = daySummary;
+  const { dateObj, isWeekend, hourlyRates } = daySummary;
   const dayNumber = dateObj.getDate();
 
   // Format hour compact
@@ -151,9 +154,17 @@ function DayCell({ daySummary, onClick, design }: DayCellProps) {
     return `Peak: ${hour - 12}pm`;
   };
 
+  // Compute stats based on the selected rate component
+  const componentRates = hourlyRates.map(h => getComponentRate(h, rateComponent));
+  const minRate = Math.min(...componentRates);
+  const maxRate = Math.max(...componentRates);
+  const bestExportHour = hourlyRates.reduce((best, curr) =>
+    getComponentRate(curr, rateComponent) > getComponentRate(best, rateComponent) ? curr : best
+  ).hour;
+
   // Calculate bar chart scale
-  const yMax = Math.max(...hourlyRates.map(h => h.totalRate));
-  const yMin = Math.min(...hourlyRates.map(h => h.totalRate));
+  const yMax = maxRate;
+  const yMin = minRate;
   const range = yMax - yMin;
 
   // Debug logging
@@ -222,9 +233,11 @@ function DayCell({ daySummary, onClick, design }: DayCellProps) {
 
             {/* Bar chart */}
             <div className="flex-1 flex gap-[1px] items-end" style={{ height: '100%' }}>
-              {hourlyRates.map(({ hour, totalRate }) => {
+              {hourlyRates.map((hourlyRate) => {
+                const { hour } = hourlyRate;
+                const displayRate = getComponentRate(hourlyRate, rateComponent);
                 // Calculate height as percentage of range
-                const barHeight = range > 0 ? ((totalRate - yMin) / range) * 100 : 50;
+                const barHeight = range > 0 ? ((displayRate - yMin) / range) * 100 : 50;
                 const isBest = hour === bestExportHour;
 
                 return (

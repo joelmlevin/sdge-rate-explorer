@@ -3,9 +3,9 @@
  * Clean, data-focused design with generation/delivery details on hover only
  */
 
-import { processDayRates } from '../../utils/calendarUtils';
+import { processDayRates, getComponentRate } from '../../utils/calendarUtils';
 import { toCents } from '../../utils/rateUtils';
-import type { RateEntry } from '../../types';
+import type { RateEntry, RateComponent } from '../../types';
 import { format } from 'date-fns';
 import { designs, type DesignVariant } from '../../styles/designs';
 
@@ -13,10 +13,11 @@ interface DayViewProps {
   rates: RateEntry[];
   date: Date;
   design?: DesignVariant;
+  rateComponent?: RateComponent;
   datePickerComponent?: React.ReactNode;
 }
 
-export default function DayViewV2({ rates, date, design = 'minimal', datePickerComponent }: DayViewProps) {
+export default function DayViewV2({ rates, date, design = 'minimal', rateComponent = 'total', datePickerComponent }: DayViewProps) {
   const daySummary = processDayRates(rates, date);
   const designSystem = designs[design];
 
@@ -29,7 +30,16 @@ export default function DayViewV2({ rates, date, design = 'minimal', datePickerC
     );
   }
 
-  const { hourlyRates, minRate, maxRate, avgRate, bestExportHour } = daySummary;
+  const { hourlyRates } = daySummary;
+
+  // Recompute stats based on selected rate component
+  const componentRates = hourlyRates.map(h => getComponentRate(h, rateComponent));
+  const minRate = Math.min(...componentRates);
+  const maxRate = Math.max(...componentRates);
+  const avgRate = componentRates.reduce((sum, r) => sum + r, 0) / componentRates.length;
+  const bestExportHour = hourlyRates.reduce((best, curr) =>
+    getComponentRate(curr, rateComponent) > getComponentRate(best, rateComponent) ? curr : best
+  ).hour;
 
   // Calculate scale for bar chart
   const yMax = Math.ceil(maxRate * 100) / 100; // Round up to nearest 0.01
@@ -91,9 +101,11 @@ export default function DayViewV2({ rates, date, design = 'minimal', datePickerC
           {/* Chart area */}
           <div className="flex-1">
             <div className="flex gap-2 items-end h-80">
-              {hourlyRates.map(({ hour, totalRate, generationRate, deliveryRate }) => {
+              {hourlyRates.map((hourData) => {
+                const { hour, totalRate, generationRate, deliveryRate } = hourData;
                 const isBest = hour === bestExportHour;
-                const barHeight = ((totalRate - yMin) / range) * 100;
+                const displayRate = getComponentRate(hourData, rateComponent);
+                const barHeight = ((displayRate - yMin) / range) * 100;
 
                 return (
                   <div key={hour} className="flex-1 flex flex-col items-center group">
@@ -111,10 +123,11 @@ export default function DayViewV2({ rates, date, design = 'minimal', datePickerC
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
                           <div className="text-xs whitespace-nowrap shadow-2xl" style={{ backgroundColor: 'rgba(255, 255, 255, 0.75)', borderRadius: '12px', padding: '9px 13px' }}>
                             <div className="font-bold mb-1.5 text-gray-900">{formatHour(hour)}</div>
-                            <div className="font-bold text-base text-gray-900">{toCents(totalRate).toFixed(2)}¢/kWh</div>
+                            <div className="font-bold text-base text-gray-900">{toCents(displayRate).toFixed(2)}¢/kWh</div>
                             <div className="text-[10px] text-gray-600 mt-2 pt-2 border-t border-gray-300 space-y-0.5">
-                              <div>Gen: {toCents(generationRate).toFixed(2)}¢</div>
-                              <div>Del: {toCents(deliveryRate).toFixed(2)}¢</div>
+                              <div style={{ fontWeight: rateComponent === 'generation' ? 700 : 400 }}>Gen: {toCents(generationRate).toFixed(2)}¢</div>
+                              <div style={{ fontWeight: rateComponent === 'delivery' ? 700 : 400 }}>Del: {toCents(deliveryRate).toFixed(2)}¢</div>
+                              <div style={{ fontWeight: rateComponent === 'total' ? 700 : 400 }}>Total: {toCents(totalRate).toFixed(2)}¢</div>
                             </div>
                           </div>
                         </div>
