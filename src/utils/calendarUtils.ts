@@ -2,7 +2,7 @@
  * Calendar-specific utility functions for aggregating and displaying rate data
  */
 
-import type { RateEntry } from '../types';
+import type { RateEntry, RateComponent } from '../types';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek } from 'date-fns';
 
 export interface HourlyRate {
@@ -10,6 +10,15 @@ export interface HourlyRate {
   totalRate: number; // Sum of generation + delivery
   generationRate: number;
   deliveryRate: number;
+}
+
+/**
+ * Select the rate value from an HourlyRate based on the active component
+ */
+export function getComponentRate(hr: HourlyRate, component: RateComponent): number {
+  if (component === 'generation') return hr.generationRate;
+  if (component === 'delivery') return hr.deliveryRate;
+  return hr.totalRate;
 }
 
 export interface DaySummary {
@@ -177,14 +186,28 @@ export interface MonthSummary {
   overallAvg: number;
 }
 
-export function getMonthSummary(rates: RateEntry[], year: number, month: number): MonthSummary | null {
+export function getMonthSummary(rates: RateEntry[], year: number, month: number, rateComponent: RateComponent = 'total'): MonthSummary | null {
   const days = getMonthDays(rates, year, month);
 
   if (days.length === 0) return null;
 
-  const avgDailyMin = days.reduce((sum, d) => sum + d.minRate, 0) / days.length;
-  const avgDailyMax = days.reduce((sum, d) => sum + d.maxRate, 0) / days.length;
-  const overallAvg = days.reduce((sum, d) => sum + d.avgRate, 0) / days.length;
+  const getDayMin = (d: DaySummary) => {
+    if (rateComponent === 'total') return d.minRate;
+    return Math.min(...d.hourlyRates.map(h => getComponentRate(h, rateComponent)));
+  };
+  const getDayMax = (d: DaySummary) => {
+    if (rateComponent === 'total') return d.maxRate;
+    return Math.max(...d.hourlyRates.map(h => getComponentRate(h, rateComponent)));
+  };
+  const getDayAvg = (d: DaySummary) => {
+    if (rateComponent === 'total') return d.avgRate;
+    const vals = d.hourlyRates.map(h => getComponentRate(h, rateComponent));
+    return vals.reduce((sum, v) => sum + v, 0) / vals.length;
+  };
+
+  const avgDailyMin = days.reduce((sum, d) => sum + getDayMin(d), 0) / days.length;
+  const avgDailyMax = days.reduce((sum, d) => sum + getDayMax(d), 0) / days.length;
+  const overallAvg = days.reduce((sum, d) => sum + getDayAvg(d), 0) / days.length;
 
   return {
     year,

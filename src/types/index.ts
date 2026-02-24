@@ -4,6 +4,11 @@
  */
 
 /**
+ * Which price component to display in visualizations
+ */
+export type RateComponent = 'total' | 'generation' | 'delivery';
+
+/**
  * Raw rate data entry from CSV file
  * Matches the structure of "Current Year NBT Pricing Upload MIDAS.csv"
  */

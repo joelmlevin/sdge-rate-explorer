@@ -6,7 +6,7 @@
 
 import { useMemo, useRef, useEffect, useState, useCallback } from 'react';
 import { format } from 'date-fns';
-import type { RateEntry } from '../../types';
+import type { RateEntry, RateComponent } from '../../types';
 import { toCents } from '../../utils/rateUtils';
 import { designs, type DesignVariant } from '../../styles/designs';
 
@@ -14,10 +14,11 @@ interface YearHeatmapProps {
   rates: RateEntry[];
   year: number;
   design?: DesignVariant;
+  rateComponent?: RateComponent;
   onDateClick?: (date: string) => void;
 }
 
-export default function YearHeatmap({ rates, year, design = 'minimal', onDateClick }: YearHeatmapProps) {
+export default function YearHeatmap({ rates, year, design = 'minimal', rateComponent = 'total', onDateClick }: YearHeatmapProps) {
   const MOBILE_BREAKPOINT = 640;
   const MOBILE_HOUR_LABEL_WIDTH = 32;
   const DESKTOP_HOUR_LABEL_WIDTH = 48;
@@ -40,7 +41,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
       return rateDate.getFullYear() === year;
     });
 
-    // Group by date and hour, summing generation + delivery
+    // Group by date and hour, using the selected rate component
     const byDate = new Map<string, Map<number, number>>();
     filtered.forEach(r => {
       if (!byDate.has(r.date)) {
@@ -48,8 +49,12 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
       }
       const hourMap = byDate.get(r.date)!;
       const currentRate = hourMap.get(r.hour) || 0;
-      // Add this rate to the hour total (to sum generation + delivery)
-      hourMap.set(r.hour, currentRate + r.rate);
+      const rateValue = rateComponent === 'generation'
+        ? (r.generationRate ?? 0)
+        : rateComponent === 'delivery'
+          ? (r.deliveryRate ?? 0)
+          : r.rate;
+      hourMap.set(r.hour, currentRate + rateValue);
     });
 
     // Get sorted array of dates
@@ -59,7 +64,7 @@ export default function YearHeatmap({ rates, year, design = 'minimal', onDateCli
       dateArray: dates,
       dataGrid: byDate
     };
-  }, [rates, year]);
+  }, [rates, year, rateComponent]);
 
   const monthPositions = useMemo(() => {
     const positions: Array<{ month: string; index: number }> = [];

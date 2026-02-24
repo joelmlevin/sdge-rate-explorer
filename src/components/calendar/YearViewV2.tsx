@@ -5,7 +5,7 @@
 
 import { getMonthSummary, type MonthSummary } from '../../utils/calendarUtils';
 import { toCents } from '../../utils/rateUtils';
-import type { RateEntry } from '../../types';
+import type { RateEntry, RateComponent } from '../../types';
 import { designs, type DesignVariant } from '../../styles/designs';
 import YearHeatmap from './YearHeatmap';
 
@@ -15,13 +15,14 @@ interface YearViewProps {
   onMonthClick?: (month: number) => void;
   onDateClick?: (date: string) => void;
   design?: DesignVariant;
+  rateComponent?: RateComponent;
   datePickerComponent?: React.ReactNode;
 }
 
-export default function YearViewV2({ rates, year, onMonthClick, onDateClick, design = 'minimal', datePickerComponent }: YearViewProps) {
+export default function YearViewV2({ rates, year, onMonthClick, onDateClick, design = 'minimal', rateComponent = 'total', datePickerComponent }: YearViewProps) {
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const monthSummaries = months
-    .map(month => getMonthSummary(rates, year, month))
+    .map(month => getMonthSummary(rates, year, month, rateComponent))
     .filter((summary): summary is MonthSummary => summary !== null);
 
   const designSystem = designs[design];
@@ -60,7 +61,7 @@ export default function YearViewV2({ rates, year, onMonthClick, onDateClick, des
 
       {/* Year Heatmap */}
       <div className="border-t" style={{ borderColor: designSystem.colors.border }}>
-        <YearHeatmap rates={rates} year={year} design={design} onDateClick={onDateClick} />
+        <YearHeatmap rates={rates} year={year} design={design} rateComponent={rateComponent} onDateClick={onDateClick} />
       </div>
     </div>
   );

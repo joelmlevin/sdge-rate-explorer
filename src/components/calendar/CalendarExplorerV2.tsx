@@ -14,6 +14,7 @@ import Footer from '../shared/Footer';
 import { addMonths, endOfMonth, endOfWeek, endOfYear, format, parse, startOfMonth, startOfWeek, startOfYear, subMonths } from 'date-fns';
 import { designs, type DesignVariant } from '../../styles/designs';
 import { getDateRange } from '../../services/dataService';
+import type { RateComponent } from '../../types';
 
 type ViewMode = 'day' | 'week' | 'month' | 'year';
 
@@ -29,6 +30,7 @@ export default function CalendarExplorerV2() {
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedDate, setSelectedDate] = useState(now);
+  const [rateComponent, setRateComponent] = useState<RateComponent>('total');
   const design: DesignVariant = 'minimal';
 
   const designSystem = designs[design];
@@ -192,8 +194,8 @@ export default function CalendarExplorerV2() {
     <div className="flex-1" style={{ backgroundColor: designSystem.colors.background }}>
       <div className="max-w-[1600px] mx-auto px-6 py-8">
         {/* Header */}
-        <div className="mb-8">
-          {/* Controls row */}
+        <div className="mb-8 flex flex-col gap-3">
+          {/* Row 1: view mode selector (left) + navigation (right) */}
           <div className="flex items-center justify-between gap-4">
             {/* View mode selector */}
             <div className="flex gap-2">
@@ -264,6 +266,25 @@ export default function CalendarExplorerV2() {
               </button>
             </div>
           </div>
+
+          {/* Row 2: rate component selector (right-aligned, below navigation) */}
+          <div className="flex justify-end">
+            <select
+              value={rateComponent}
+              onChange={(e) => setRateComponent(e.target.value as RateComponent)}
+              className={`px-4 py-2 ${designSystem.borders.radius} text-sm font-medium transition-all cursor-pointer`}
+              style={{
+                backgroundColor: designSystem.colors.surface,
+                color: designSystem.colors.text.primary,
+                border: `${designSystem.borders.width} solid ${designSystem.colors.border}`,
+                outline: 'none',
+              }}
+            >
+              <option value="total">Total</option>
+              <option value="generation">Generation</option>
+              <option value="delivery">Delivery</option>
+            </select>
+          </div>
         </div>
 
         {suggestedDate && !isLoading && parsedRange && (
@@ -297,6 +318,7 @@ export default function CalendarExplorerV2() {
               month={selectedMonth}
               onDayClick={handleDayClick}
               design={design}
+              rateComponent={rateComponent}
               datePickerComponent={
                 <QuickDatePicker
                   currentDate={selectedDate}
@@ -312,6 +334,7 @@ export default function CalendarExplorerV2() {
               rates={allRates}
               date={selectedDate}
               design={design}
+              rateComponent={rateComponent}
               onDayClick={handleWeekDayClick}
               datePickerComponent={
                 <QuickDatePicker
@@ -328,6 +351,7 @@ export default function CalendarExplorerV2() {
               rates={allRates}
               date={selectedDate}
               design={design}
+              rateComponent={rateComponent}
               datePickerComponent={
                 <QuickDatePicker
                   currentDate={selectedDate}
@@ -343,6 +367,7 @@ export default function CalendarExplorerV2() {
               rates={allRates}
               year={selectedYear}
               onMonthClick={handleMonthClick}
+              rateComponent={rateComponent}
               onDateClick={(date) => {
                 // Navigate to week view for this date
                 const clickedDate = new Date(date + 'T00:00:00');
