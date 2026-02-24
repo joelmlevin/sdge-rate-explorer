@@ -4,7 +4,7 @@
 
 A web application for visualizing and exploring San Diego Gas & Electric (SDG&E) solar buyback rates across multiple contract years. Designed for solar + battery system owners to optimize when to charge batteries and export power to the grid.
 
-**🌐 Live App**: https://joelmlevin.github.io/sdge-rate-explorer/
+**Live App**: https://joelmlevin.github.io/sdge-rate-explorer/
 
 ## Features
 
@@ -62,7 +62,7 @@ npm run preview
 npm run deploy
 ```
 
-✅ **Optimized Data**: This application uses preprocessed JSON files for each contract year:
+**Preprocessed Data**: This application uses preprocessed JSON files for each contract year:
 - `rates-2023.json` (7.0 MB) - 2023 contract year (NBT23)
 - `rates-2024.json` (7.0 MB) - 2024 contract year (NBT24)
 - `rates-2025.json` (6.8 MB) - 2025 contract year (NBT25)
