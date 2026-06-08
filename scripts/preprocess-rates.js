@@ -58,7 +58,22 @@ if (!fs.existsSync(inputPath)) {
   process.exit(1);
 }
 
-// Helper: Convert UTC timestamp to Pacific Time
+// Helper: Convert the MIDAS UTC timestamp to the Pacific local calendar date.
+//
+// FORMAT (verified against the DayStart column and the Weekday/Weekend ValueName
+// labels via independent from-scratch reconstruction):
+//   * DateStart + TimeStart are UTC.
+//   * ValueName "HS<n>" is the Pacific local clock hour (0-23).
+//   * The dataset starts at 08:00 UTC = 00:00 PST; HS0 sits at 08:00 UTC in winter
+//     and 07:00 UTC in summer (the DST offset).
+// Pacific EVENING hours (HS16-23) fall on the NEXT UTC calendar day, so those rows
+// carry the next day's DateStart in UTC. We therefore MUST convert the UTC instant
+// to America/Los_Angeles to recover the correct Pacific DATE. Example: the row
+// {DateStart 8/2/2025, TimeStart 3:00, "Aug Weekday HS20"} is the rate for Pacific
+// 2025-08-01 20:00 (a Friday) -- NOT 2025-08-02 (a Saturday).
+//
+// DO NOT "simplify" by treating DateStart as the Pacific date: that shifts every
+// evening rate onto the wrong day. toLocaleString handles PST/PDT (DST) correctly.
 function utcToPacific(dateStr, timeStr) {
   // Parse date: "M/D/YYYY"
   const [month, day, year] = dateStr.split('/').map(Number);

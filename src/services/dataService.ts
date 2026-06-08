@@ -104,8 +104,12 @@ function processOptimizedData(data: OptimizedRateData): RateEntry[] {
     // Create timestamp string (Pacific Time)
     const timestamp = `${date}T${String(hour).padStart(2, '0')}:00:00-08:00`;
 
-    // Parse date components
-    const dateObj = new Date(date);
+    // Parse date components from the Pacific calendar date.
+    // NOTE: `new Date("YYYY-MM-DD")` parses as UTC midnight, which rolls back to the
+    // previous day when read with local getters in a negative-offset timezone (e.g.
+    // Pacific). Appending a time forces local-midnight parsing, so the calendar date
+    // -- and thus month/year/dayOfWeek -- is correct regardless of the browser's TZ.
+    const dateObj = new Date(`${date}T00:00:00`);
     const month = dateObj.getMonth() + 1;
     const year = dateObj.getFullYear();
     const dayOfWeek = dateObj.getDay();
